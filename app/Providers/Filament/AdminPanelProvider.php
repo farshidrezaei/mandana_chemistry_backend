@@ -1,0 +1,118 @@
+<?php
+
+namespace App\Providers\Filament;
+
+use Filament\Panel;
+use Filament\PanelProvider;
+use App\Filament\Pages\Dashboard;
+use Filament\Support\Colors\Color;
+use Hasnayeen\Themes\ThemesPlugin;
+use App\Filament\Pages\Auth\Login;
+use Filament\Tables\Columns\TextColumn;
+use App\Filament\Pages\Auth\EditProfile;
+use Filament\Http\Middleware\Authenticate;
+use Filament\Support\Facades\FilamentView;
+use Awcodes\FilamentGravatar\GravatarPlugin;
+use Filament\Infolists\Components\TextEntry;
+use Filament\FontProviders\LocalFontProvider;
+use Hasnayeen\Themes\Http\Middleware\SetTheme;
+use Awcodes\FilamentGravatar\GravatarProvider;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Session\Middleware\AuthenticateSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+
+class AdminPanelProvider extends PanelProvider
+{
+    public function panel(Panel $panel): Panel
+    {
+        return $panel
+            ->default()
+            ->id('admin')
+            ->path('admin')
+            ->colors(['primary' => Color::Amber])
+            ->font('Yekan Bakh FaNum', asset('/fonts/yekan_bakh_fa/Webfonts/fontiran.css'), LocalFontProvider::class)
+            ->spa()
+            ->brandLogo(asset('/images/logo.svg'))
+            ->brandName(config('app.name'))
+            ->profile(EditProfile::class)
+            ->login(Login::class)
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->pages([
+                Dashboard::class,
+            ])
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->defaultAvatarProvider(GravatarProvider::class)
+            ->widgets([
+            ])
+            ->middleware([
+                EncryptCookies::class,
+                AddQueuedCookiesToResponse::class,
+                StartSession::class,
+                AuthenticateSession::class,
+                ShareErrorsFromSession::class,
+                VerifyCsrfToken::class,
+                SubstituteBindings::class,
+                DisableBladeIconComponents::class,
+                DispatchServingFilamentEvent::class,
+                SetTheme::class,
+            ])
+            ->authMiddleware([
+                Authenticate::class,
+            ])
+            ->plugins([
+                FilamentShieldPlugin::make(),
+                ThemesPlugin::make(),
+                GravatarPlugin::make()->default('mp')->size(200)
+            ]);
+    }
+
+    public function register(): void
+    {
+        $metas = [
+            '<link rel="apple-touch-icon" sizes="180x180" href="' . asset('/icons/apple-touch-icon.png') . '">',
+            '<link rel="icon" type="image/png" sizes="32x32" href="' . asset('/icons/favicon-32x32.png') . '">',
+            '<link rel="icon" type="image/png" sizes="194x194" href="' . asset('/icons/favicon-194x194.png') . '">',
+            '<link rel="icon" type="image/png" sizes="192x192" href="' . asset(
+                '/icons/android-chrome-192x192.png'
+            ) . '">',
+            '<link rel="icon" type="image/png" sizes="16x16" href="' . asset('/icons/favicon-16x16.png') . '">',
+            '<link rel="manifest" href="' . asset('/icons/site.webmanifest') . '">',
+            '<link rel="mask-icon" href="' . asset('/icons/safari-pinned-tab.svg') . '" color="#000000">',
+            '<link rel="shortcut icon" href="' . asset('/icons/favicon.ico') . '">',
+            '<meta name="msapplication-TileColor" content="#000000">',
+            '<meta name="msapplication-TileImage" content="/icons/mstile-144x144.png">',
+            '<meta name="msapplication-config" content="/icons/browserconfig.xml">',
+            '<meta name="theme-color" content="#000000">',
+        ];
+
+        FilamentView::registerRenderHook(
+            'panels::head.start',
+            fn(): string => implode("\n", $metas),
+        );
+        parent::register();
+    }
+
+    public function boot(): void
+    {
+        TextColumn::macro('jalaliDate', function () {
+            $this->formatStateUsing = fn(string $state): string => verta($state)->format('H:i - Y/m/d');
+            return $this;
+        });
+        TextEntry::macro('jalaliDate', function () {
+            $this->formatStateUsing = fn(string $state): string => verta($state)->format('H:i - Y/m/d');
+            return $this;
+        });
+        TextColumn::macro('time', function () {
+            $this->formatStateUsing = fn(string $state): string => verta($state)->format('H:i');
+            return $this;
+        });
+    }
+}
