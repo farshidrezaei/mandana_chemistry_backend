@@ -7,12 +7,12 @@ services:
     build: .
     ports:
       - "${SERVE_PORT}:8000"
-    container_name: canfeex-backend
+    container_name: mandana_chemistry-backend
     command:
       "php artisan octane:start --host=0.0.0.0"
     networks:
-        - canfeex-network
+        - mandana_chemistry-network
 networks:
-    canfeex-network:
+    mandana_chemistry-network:
         driver: bridge
         external: true
