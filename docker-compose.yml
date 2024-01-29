@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  php:
+    tty: true
+    restart: always
+    build: .
+    ports:
+      - "${SERVE_PORT}:8000"
+    container_name: canfeex-backend
+    command:
+      "php artisan octane:start --host=0.0.0.0"
+    networks:
+        - canfeex-network
+networks:
+    canfeex-network:
+        driver: bridge
+        external: true
