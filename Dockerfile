@@ -19,17 +19,14 @@ RUN chown -R laravel:laravel /var/www/html
 
 RUN composer i
 
+RUN php artisan key:generate
+RUN php artisan storage:link
+
 CMD ["chmod", "+x", "crontab"]
-RUN mkdir -p /etc/supervisor/conf.d
 COPY docker/cron /etc/cron.d/crontab
 RUN chmod 0644 /etc/cron.d/crontab
 RUN cron /etc/cron.d/crontab
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor.conf", "-n", "&"]
 CMD ["cron", "-f"]
-
-RUN chown -Rf laravel:laravel ./docker/start.sh
-RUN php artisan key:generate
-RUN php artisan storage:link
 RUN /usr/bin/supervisord -c /etc/supervisor.conf -n &
 
 
