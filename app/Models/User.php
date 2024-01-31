@@ -61,4 +61,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Project::class)->whereFinishedAt(null);
     }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->username === 'super-admin' || $this->hasRole('super_admin');
+    }
 }

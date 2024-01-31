@@ -2,10 +2,8 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -25,9 +23,11 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Gate::before(fn() => Auth::user()->username === 'super-admin');
+        Gate::before(fn (User $user) => $user->isSuperAdmin() ? true : null);
         Gate::define('viewPulse', function (User $user) {
-            return true;
+            $user->isSuperAdmin();
         });
     }
+
+
 }
