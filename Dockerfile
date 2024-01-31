@@ -26,7 +26,7 @@ RUN php artisan storage:link
 
 COPY docker/cron /etc/cron.d/crontab
 RUN chmod 0644 /etc/cron.d/crontab
-RUN cron /etc/cron.d/crontab
+RUN crontab /etc/cron.d/crontab
 
 CMD ["cron", "-f"]
 
