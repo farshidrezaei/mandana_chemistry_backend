@@ -30,7 +30,7 @@ RUN cron /etc/cron.d/crontab
 
 CMD ["cron", "-f"]
 
-RUN chmod +x ./docker/php/start.sh
+RUN chmod +x ./docker/start.sh
 CMD ["chmod", "+x", "./docker/start.sh"]
 RUN chown -Rf laravel:laravel ./docker/start.sh
 ENTRYPOINT ["./docker/php/start.sh"]
