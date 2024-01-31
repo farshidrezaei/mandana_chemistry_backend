@@ -1,9 +1,4 @@
 #!/bin/sh
-RUN composer i
-
-RUN php artisan key:generate
-
-php artisan storage:link
 
 service cron restart
 
