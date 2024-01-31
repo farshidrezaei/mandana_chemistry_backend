@@ -7,9 +7,9 @@ RUN groupadd -g 1000 laravel \
     && usermod -u 1000 laravel \
     && groupmod -g 1000 laravel
 
-RUN apt install  cron -y
+RUN apt update && apt -y install cron
 
-RUN apt install  supervisor -y
+RUN apt install supervisor -y
 
 RUN mkdir -p /etc/supervisor/conf.d
 COPY ./docker/php/supervisor.conf /etc/supervisor.conf
@@ -23,6 +23,7 @@ RUN chown -R laravel:laravel /var/www/html
 
 
 CMD ["chmod", "+x", "crontab"]
+RUN mkdir -p /etc/supervisor/conf.d
 COPY ./docer/cron /etc/cron.d/crontab
 RUN chmod 0644 /etc/cron.d/crontab
 RUN cron /etc/cron.d/crontab
