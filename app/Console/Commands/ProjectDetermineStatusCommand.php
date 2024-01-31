@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Test;
 use App\Models\Project;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class ProjectDetermineStatusCommand extends Command
 {
@@ -14,6 +15,7 @@ class ProjectDetermineStatusCommand extends Command
 
     public function handle(): void
     {
+        Log::info('Start Schedule');
         Project::query()
             ->with('tests')
             ->whereNull('finished_at')
