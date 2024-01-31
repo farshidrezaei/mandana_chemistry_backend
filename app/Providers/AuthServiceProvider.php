@@ -24,7 +24,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Gate::before(fn (User $user) => Auth::user()->isSuperAdmin() ? true : null);
+        Gate::before(fn () => Auth::user()->isSuperAdmin() ? true : null);
         Gate::define('viewPulse', function (User $user) {
             $user->isSuperAdmin();
         });

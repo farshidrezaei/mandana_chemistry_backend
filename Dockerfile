@@ -24,6 +24,7 @@ RUN mkdir -p /etc/supervisor/conf.d
 COPY docker/cron /etc/cron.d/crontab
 RUN chmod 0644 /etc/cron.d/crontab
 RUN cron /etc/cron.d/crontab
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor.conf", "-n", "&"]
 CMD ["cron", "-f"]
 
 RUN chown -Rf laravel:laravel ./docker/start.sh
