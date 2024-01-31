@@ -1,19 +1,15 @@
 FROM ghcr.io/msalehipro/laravel-octane:latest
 
-
 RUN groupadd -g 1000 laravel \
     && useradd -m -g laravel -u 1000 -s /bin/sh laravel \
     && chown -R laravel:laravel /var/www \
     && usermod -u 1000 laravel \
     && groupmod -g 1000 laravel
 
-RUN apt update && apt -y install cron
-
-RUN apt install supervisor -y
+RUN apt install cron -y
 
 RUN mkdir -p /etc/supervisor/conf.d
-COPY ./docker/php/supervisor.conf /etc/supervisor.conf
-
+COPY docker/supervisor.conf /etc/supervisor.conf
 
 WORKDIR /var/www/html
 
@@ -24,7 +20,7 @@ RUN chown -R laravel:laravel /var/www/html
 
 CMD ["chmod", "+x", "crontab"]
 RUN mkdir -p /etc/supervisor/conf.d
-COPY ./docer/cron /etc/cron.d/crontab
+COPY docker/cron /etc/cron.d/crontab
 RUN chmod 0644 /etc/cron.d/crontab
 RUN cron /etc/cron.d/crontab
 CMD ["cron", "-f"]
