@@ -1,4 +1,5 @@
 #!/bin/sh
+RUN php artisan key:generate
 
 service cron restart
 

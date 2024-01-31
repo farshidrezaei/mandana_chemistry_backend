@@ -19,8 +19,6 @@ RUN chown -R laravel:laravel /var/www/html
 
 RUN composer i
 
-RUN php artisan key:generate
-
 php artisan storage:link
 
 CMD ["chmod", "+x", "crontab"]
