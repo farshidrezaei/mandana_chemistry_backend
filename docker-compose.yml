@@ -8,8 +8,6 @@ services:
     ports:
       - "${SERVE_PORT}:8000"
     container_name: mandana_chemistry-backend
-    command:
-      "php artisan octane:start --host=0.0.0.0"
     networks:
         - mandana_chemistry-network
 networks:
