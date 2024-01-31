@@ -11,12 +11,28 @@ RUN groupadd -g 1000 laravel \
     && usermod -u 1000 laravel \
     && groupmod -g 1000 laravel
 
+RUN apt install cron supervisor -y
+RUN mkdir -p /etc/supervisor/conf.d
+COPY ./docker/php/supervisor.conf /etc/supervisor.conf
+
+
 WORKDIR /var/www/html
 
 COPY . /var/www/html
 
+RUN chown -R $USER:$USER /var/www
+
 RUN chown -R laravel:laravel /var/www/html
 
-RUN composer i
 
-RUN php artisan key:generate
+CMD ["chmod", "+x", "crontab"]
+COPY crontab /etc/cron.d/crontab
+RUN chmod 0644 /etc/cron.d/crontab
+RUN crontab /etc/cron.d/crontab
+CMD ["cron", "-f"]
+
+RUN chmod +x ./docker/php/start.sh
+CMD ["chmod", "+x", "./docker/php/start.sh"]
+RUN chown -Rf $USER:$USER ./docker/php/start.sh
+ENTRYPOINT ["./docker/php/start.sh"]
+
