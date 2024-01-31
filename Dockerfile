@@ -11,7 +11,8 @@ RUN groupadd -g 1000 laravel \
     && usermod -u 1000 laravel \
     && groupmod -g 1000 laravel
 
-RUN apt install -y cron supervisor
+RUN apt install  cron -y
+RUN apt install  supervisor -y
 
 RUN mkdir -p /etc/supervisor/conf.d
 COPY ./docker/php/supervisor.conf /etc/supervisor.conf
