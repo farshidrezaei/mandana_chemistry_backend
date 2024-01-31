@@ -26,7 +26,7 @@ RUN chown -R laravel:laravel /var/www/html
 
 
 CMD ["chmod", "+x", "crontab"]
-COPY cron /etc/cron.d/crontab
+COPY ./docer/cron /etc/cron.d/crontab
 RUN chmod 0644 /etc/cron.d/crontab
 RUN cron /etc/cron.d/crontab
 CMD ["cron", "-f"]
