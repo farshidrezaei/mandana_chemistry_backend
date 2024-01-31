@@ -9,7 +9,7 @@ RUN groupadd -g 1000 laravel \
 RUN apt install cron -y
 
 RUN mkdir -p /etc/supervisor/conf.d
-COPY docker/supervisor.conf /etc/supervisor.conf
+COPY docker/supervisor.conf /etc/supervisor/conf.d/supervisor.conf
 
 WORKDIR /var/www/html
 
@@ -22,13 +22,13 @@ RUN composer i
 RUN php artisan key:generate
 RUN php artisan storage:link
 
-CMD ["chmod", "+x", "crontab"]
+
 COPY docker/cron /etc/cron.d/crontab
 RUN chmod 0644 /etc/cron.d/crontab
 RUN cron /etc/cron.d/crontab
-CMD ["cron", "-f"]
+
 ENTRYPOINT ["service", "cron", "restart"]
 
-ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor.conf", "-n"]
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisor.conf", "-n","&"]
 
 ENTRYPOINT ["php", "artisan", "octane:start", "--host=0.0.0.0"]
