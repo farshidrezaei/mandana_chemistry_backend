@@ -29,6 +29,6 @@ RUN cron /etc/cron.d/crontab
 CMD ["cron", "-f"]
 ENTRYPOINT ["service", "cron", "restart"]
 
-ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor.conf", "-n", "&"]
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor.conf", "-n"]
 
-ENTRYPOINT ["php", "artisan", "octane:start","--host=0.0.0.0"]
+ENTRYPOINT ["php", "artisan", "octane:start", "--host=0.0.0.0"]
