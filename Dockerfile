@@ -26,8 +26,10 @@ RUN chmod 0644 /etc/cron.d/crontab
 RUN cron /etc/cron.d/crontab
 CMD ["cron", "-f"]
 
-RUN chmod +x ./docker/start.sh
-CMD ["chmod", "+x", "./docker/start.sh"]
 RUN chown -Rf laravel:laravel ./docker/start.sh
-ENTRYPOINT ["./docker/start.sh"]
+RUN php artisan key:generate
+RUN php artisan storage:link
+RUN service cron restart
+RUN /usr/bin/supervisord -c /etc/supervisor.conf -n &
+
 
