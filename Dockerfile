@@ -29,7 +29,6 @@ CMD ["cron", "-f"]
 RUN chown -Rf laravel:laravel ./docker/start.sh
 RUN php artisan key:generate
 RUN php artisan storage:link
-RUN service cron restart
 RUN /usr/bin/supervisord -c /etc/supervisor.conf -n &
 
 
