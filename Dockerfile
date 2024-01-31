@@ -10,6 +10,7 @@ RUN apt install cron -y
 
 RUN mkdir -p /etc/supervisor/conf.d
 COPY docker/supervisor.conf /etc/supervisor/conf.d/supervisor.conf
+RUN chmod 0644 /etc/supervisor/conf.d/supervisor.conf
 
 WORKDIR /var/www/html
 
@@ -27,8 +28,10 @@ COPY docker/cron /etc/cron.d/crontab
 RUN chmod 0644 /etc/cron.d/crontab
 RUN cron /etc/cron.d/crontab
 
-ENTRYPOINT ["cron", "-f"]
+CMD ["cron", "-f"]
 
-ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisor.conf", "-n","&"]
+RUN chmod +x ./docker/php/start.sh
+CMD ["chmod", "+x", "./docker/start.sh"]
+RUN chown -Rf laravel:laravel ./docker/start.sh
+ENTRYPOINT ["./docker/php/start.sh"]
 
-ENTRYPOINT ["php", "artisan", "octane:start", "--host=0.0.0.0"]
