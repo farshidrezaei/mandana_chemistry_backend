@@ -33,5 +33,5 @@ CMD ["cron", "-f"]
 RUN chmod +x ./docker/start.sh
 CMD ["chmod", "+x", "./docker/start.sh"]
 RUN chown -Rf laravel:laravel ./docker/start.sh
-ENTRYPOINT ["./docker/php/start.sh"]
+ENTRYPOINT ["./docker/start.sh"]
 
