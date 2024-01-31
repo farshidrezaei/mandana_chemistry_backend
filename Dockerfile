@@ -19,8 +19,6 @@ RUN chown -R laravel:laravel /var/www/html
 
 RUN composer i
 
-php artisan storage:link
-
 CMD ["chmod", "+x", "crontab"]
 RUN mkdir -p /etc/supervisor/conf.d
 COPY docker/cron /etc/cron.d/crontab
