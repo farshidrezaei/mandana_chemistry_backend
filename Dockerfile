@@ -27,6 +27,6 @@ COPY docker/cron /etc/cron.d/crontab
 RUN chmod 0644 /etc/cron.d/crontab
 RUN cron /etc/cron.d/crontab
 CMD ["cron", "-f"]
-RUN /usr/bin/supervisord -c /etc/supervisor.conf -n &
+ENTRYPOINT ["service", "cron", "restart"]
 
-
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor.conf", "-n", "&"]
