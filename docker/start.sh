@@ -1,5 +1,5 @@
 #!/bin/sh
-RUN php artisan key:generate
+php artisan key:generate
 
 php artisan storage:link
 
