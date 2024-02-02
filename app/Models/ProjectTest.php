@@ -20,7 +20,7 @@ class ProjectTest extends Pivot
     public function setDone(): void
     {
         $this->update([
-            'finished_at' => now(),
+            'finished_at' => now()->startOfMinute(),
             'is_mismatched' => false
         ]);
 
@@ -31,7 +31,7 @@ class ProjectTest extends Pivot
         Log::info((string)$unFinishedTests->count());
         if ($unFinishedTests->isEmpty()) {
             $this->project->update([
-                'finished_at' => now(),
+                'finished_at' => now()->startOfMinute(),
                 'is_mismatched' => false
             ]);
             redirect("/admin/projects/{$this->project->id}");
@@ -39,7 +39,7 @@ class ProjectTest extends Pivot
             $unFinishedTests->first()
                 ->projectTest
                 ->update([
-                    'started_at' => now(),
+                    'started_at' => now()->startOfMinute(),
                     'is_mismatched' => false
                 ]);
         }
@@ -57,7 +57,6 @@ class ProjectTest extends Pivot
             'renewals_duration' => $this->renewals_duration + app(GeneralSettings::class)->renewalDurationTime
         ]);
         redirect("/admin/projects/{$this->project->id}");
-
     }
 
     public function getFinishesAt(): ?Carbon
@@ -96,10 +95,8 @@ class ProjectTest extends Pivot
 
     public function isRenewalTimeHasPassed(): bool
     {
-        return !now()
-            ->startOfMinute()
-            ->subMinutes(app(GeneralSettings::class)->forbiddenRenewalTime)
-            ->isBefore($this->getFinishesAt());
+        return now()->startOfMinute()->diffInMinutes($this->getFinishesAt())
+            <= app(GeneralSettings::class)->forbiddenRenewalTime;
     }
 
     public function isAbleToRenewal(): bool

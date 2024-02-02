@@ -18,7 +18,6 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Columns\IconColumn;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Columns\Layout\Split;
 use Filament\Forms\Components\Placeholder;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\IconEntry;
@@ -54,12 +53,12 @@ class ProjectResource extends Resource
 
                 TextEntry::make('id')->label('تمدید شده')
                     ->formatStateUsing(
-                        fn(Model $record) => ($record->tests->sum('projectTest.renewals_duration') . "  دقیقه ")
+                        fn (Model $record) => ($record->tests->sum('projectTest.renewals_duration') . "  دقیقه ")
                     ),
 
                 TextEntry::make('product_id')->label('پایان تخمینی')
                     ->formatStateUsing(
-                        fn(Model $record): string => verta(
+                        fn (Model $record): string => verta(
                             $record->started_at->startOfMinute()
                                 ->addMinutes(
                                     $record->tests->sum('duration')
@@ -72,25 +71,27 @@ class ProjectResource extends Resource
                 TextEntry::make('user_id')->label('زمان باقی مانده')
                     ->formatStateUsing(function (Model $record): string {
                         $duration = $record->tests->sum('duration') + ($record->tests->sum->renewals_duration * app(
-                                    GeneralSettings::class
-                                )->renewalDurationTime);
+                            GeneralSettings::class
+                        )->renewalDurationTime);
                         $remaining = $record->started_at->startOfMinute()->addMinutes($duration);
-                        return now()->isBefore($remaining)
-                            ? (now()->diffInMinutes($remaining)) . ' دقیقه '
+                        return now()->startOfMinute()->isBefore($remaining)
+                            ? (now()->startOfMinute()->diffInMinutes($remaining)) . ' دقیقه '
                             : '-';
                     }),
                 TextEntry::make('product_id')->label('زمان پایان')
                     ->formatStateUsing(
-                        fn(Model $record): string => $record->finished_at ? verta($record->finished_at)->format('H:i - Y/m/d') : '-'
+                        fn (Model $record): string => $record->finished_at ? verta($record->finished_at)->format('H:i - Y/m/d') : '-'
                     ),
 
                 IconEntry::make('updated_at')
                     ->label('وضعیت')
-                    ->icon(fn(Project $record): string => $record->finished_at
+                    ->icon(
+                        fn (Project $record): string => $record->finished_at
                         ? ($record->is_mismatched ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle')
                         : 'heroicon-o-play-circle'
                     )
-                    ->color(fn(Project $record): string => $record->finished_at
+                    ->color(
+                        fn (Project $record): string => $record->finished_at
                         ? ($record->is_mismatched ? 'danger' : 'success')
                         : 'info'
                     ),
@@ -111,11 +112,11 @@ class ProjectResource extends Resource
                     ->label('محصول')
                     ->relationship('product', 'title')
                     ->getSearchResultsUsing(
-                        fn(string $search) => Product::where('title', 'like', "%{$search}%")
+                        fn (string $search) => Product::where('title', 'like', "%{$search}%")
                             ->limit(50)
                             ->pluck('title', 'id')
                     )->live()
-                    ->afterStateUpdated(fn(Select $component) => $component
+                    ->afterStateUpdated(fn (Select $component) => $component
                         ->getContainer()
                         ->getComponent('dynamicTypeFields')
                         ->getChildComponentContainer()
@@ -127,7 +128,7 @@ class ProjectResource extends Resource
                         $product = Product::with('tests')->find($get('product_id'));
                         return $product?->tests
                             ->map(
-                                fn(Test $test, mixed $index) => Placeholder::make('employee_number')->label("مرحله " . ($index + 1) . ":")->content(
+                                fn (Test $test, mixed $index) => Placeholder::make('employee_number')->label("مرحله " . ($index + 1) . ":")->content(
                                     $test->title
                                 )
                             )->toArray()
@@ -152,11 +153,11 @@ class ProjectResource extends Resource
                 TextColumn::make('started_at')->label('شروع پروژه')->jalaliDate(),
 
                 TextColumn::make('id')->label('تمدید شده')
-                    ->formatStateUsing(fn(Model $record) => ($record->tests->sum('projectTest.renewals_duration')) . " دقیقه "),
+                    ->formatStateUsing(fn (Model $record) => ($record->tests->sum('projectTest.renewals_duration')) . " دقیقه "),
 
                 TextColumn::make('product_id')->label('پایان تخمینی')
                     ->formatStateUsing(
-                        fn(Model $record): string => verta(
+                        fn (Model $record): string => verta(
                             $record->started_at->startOfMinute()
                                 ->addMinutes($record->tests->sum('duration') + $record->tests->sum->renewals_duration)
                         )
@@ -169,16 +170,18 @@ class ProjectResource extends Resource
                             return "";
                         }
 
-                        return now()->diffInMinutes($record->getFinishesAt()) . " دقیقه ";
+                        return now()->startOfMinute()->diffInMinutes($record->getFinishesAt()) . " دقیقه ";
                     }),
                 TextColumn::make('finished_at')->label('زمان پایان')->jalaliDate(),
                 IconColumn::make('updated_at')
                     ->label('وضعیت')
-                    ->icon(fn(Project $record): string => $record->finished_at
+                    ->icon(
+                        fn (Project $record): string => $record->finished_at
                         ? ($record->is_mismatched ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle')
                         : 'heroicon-o-play-circle'
                     )
-                    ->color(fn(Project $record): string => $record->finished_at
+                    ->color(
+                        fn (Project $record): string => $record->finished_at
                         ? ($record->is_mismatched ? 'danger' : 'success')
                         : 'info'
                     ),

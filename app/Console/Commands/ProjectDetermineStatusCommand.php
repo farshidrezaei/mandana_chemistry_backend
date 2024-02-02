@@ -20,7 +20,7 @@ class ProjectDetermineStatusCommand extends Command
             ->with('tests')
             ->whereNull('finished_at')
             ->get()
-            ->each(fn(Project $project) => $this->determineProject($project));
+            ->each(fn (Project $project) => $this->determineProject($project));
     }
 
     private function determineProject(Project $project): void
@@ -30,7 +30,7 @@ class ProjectDetermineStatusCommand extends Command
             $isMismatched = $this->handleTestAndReturnMismatchStatus($test, $index);
             if ($isMismatched) {
                 $test->projectTest->project->update([
-                    'finished_at' => now(),
+                    'finished_at' => now()->startOfMinute(),
                     'is_mismatched' => true,
                 ]);
                 return;

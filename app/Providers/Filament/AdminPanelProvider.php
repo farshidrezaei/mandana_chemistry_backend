@@ -95,7 +95,7 @@ class AdminPanelProvider extends PanelProvider
 
         FilamentView::registerRenderHook(
             'panels::head.start',
-            fn(): string => implode("\n", $metas),
+            fn (): string => implode("\n", $metas),
         );
         parent::register();
     }
@@ -103,15 +103,15 @@ class AdminPanelProvider extends PanelProvider
     public function boot(): void
     {
         TextColumn::macro('jalaliDate', function () {
-            $this->formatStateUsing = fn(string $state): string => verta($state)->format('H:i - Y/m/d');
+            $this->formatStateUsing = fn (string $state): string => verta($state)->startMinute()->format('H:i - Y/m/d');
             return $this;
         });
         TextEntry::macro('jalaliDate', function () {
-            $this->formatStateUsing = fn(string $state): string => verta($state)->format('H:i - Y/m/d');
+            $this->formatStateUsing = fn (string $state): string => verta($state)->startMinute()->format('H:i - Y/m/d');
             return $this;
         });
         TextColumn::macro('time', function () {
-            $this->formatStateUsing = fn(string $state): string => verta($state)->format('H:i');
+            $this->formatStateUsing = fn (string $state): string => verta($state)->startMinute()->format('H:i');
             return $this;
         });
     }

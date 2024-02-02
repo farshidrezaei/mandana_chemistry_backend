@@ -38,7 +38,7 @@ class TestsRelationManager extends RelationManager
             ->striped()
             ->recordTitleAttribute('title')
             ->columns([
-                Tables\Columns\TextColumn::make('projectTest.order')->label('مرحله')->formatStateUsing(fn($state) => (int)$state + 1),
+                Tables\Columns\TextColumn::make('projectTest.order')->label('مرحله')->formatStateUsing(fn ($state) => (int)$state + 1),
                 Tables\Columns\TextColumn::make('title')->label('آزمایش'),
                 Tables\Columns\TextColumn::make('projectTest.started_at')->label('شروع')->jalaliDate(),
                 TextColumn::make('projectTest.test_id')->label('پایان تخمینی')
@@ -58,21 +58,27 @@ class TestsRelationManager extends RelationManager
                     ),
                 TextColumn::make('user_id')->label('زمان باقی مانده')
                     ->formatStateUsing(function (Test $record): string {
-                        if ($record->projectTest->isFinished()||!$record->projectTest->isStarted()) {
+                        if ($record->projectTest->isFinished() || !$record->projectTest->isStarted()) {
                             return "";
                         }
 
-                        return now()->diffInMinutes($record->projectTest->getFinishesAt()) . " دقیقه ";
+                        return now()->startOfMinute()->diffInMinutes($record->projectTest->getFinishesAt()) . " دقیقه ";
                     }),
-                Tables\Columns\TextColumn::make('projectTest.renewals_count')->label('تعداد تمدید'),
+                Tables\Columns\TextColumn::make('projectTest.renewals_count')
+                    ->formatStateUsing(
+                        fn (Test $record): string => "{$record->projectTest->renewals_count}/{$record->projectTest->test->renewals_count}"
+                    )
+                    ->label('تعداد تمدید'),
                 Tables\Columns\TextColumn::make('projectTest.renewals_duration')->label('مقدار تمدید')->suffix(' دقیقه '),
                 IconColumn::make('is_mismatched')
                     ->label('وضعیت')
-                    ->icon(fn(Test $record): string => $record->projectTest->finished_at
+                    ->icon(
+                        fn (Test $record): string => $record->projectTest->finished_at
                         ? ($record->projectTest->is_mismatched ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle')
                         : ($record->projectTest->started_at ? 'heroicon-o-play-circle' : 'heroicon-o-clock')
                     )
-                    ->color(fn(Test $record): string => $record->projectTest->finished_at
+                    ->color(
+                        fn (Test $record): string => $record->projectTest->finished_at
                         ? ($record->projectTest->is_mismatched ? 'danger' : 'success')
                         : ($record->projectTest->started_at ? 'info' : 'warning')
                     )
