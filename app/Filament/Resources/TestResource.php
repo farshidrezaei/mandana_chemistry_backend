@@ -56,8 +56,7 @@ class TestResource extends Resource
                 Tables\Columns\TextColumn::make('duration')
                     ->label('مدت زمان انجام')
                     ->suffix(' دقیقه '),
-                Tables\Columns\TextColumn::make('renewals_count')
-                    ->label('دفعات تمدید')
+                Tables\Columns\TextColumn::make('renewals_count')->label('دفعات تمدید')
             ])
             ->filters([
                 //
@@ -80,11 +79,9 @@ class TestResource extends Resource
                 TextEntry::make('title')->label('نام'),
 
                 Section::make('این آزمایش در این محصول‌ها استفاده شده است')
-                    ->description('')
-                    ->aside()
                     ->schema([
                         RepeatableEntry::make('products')
-                            ->label('پروژه‌ها')
+                            ->label('محصول‌ها')
                             ->schema([
                                 TextEntry::make('title')->label('نام'),
                             ])->columns(1),
@@ -92,6 +89,7 @@ class TestResource extends Resource
 
             ]);
     }
+
     public static function getPages(): array
     {
         return [

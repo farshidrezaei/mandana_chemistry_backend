@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use App\Settings\GeneralSettings;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -17,32 +17,59 @@ class ProjectTest extends Pivot
     ];
     protected $guarded = ['id'];
 
-    public function setDone(): void
+    private function determineStatus(bool $isMismatched): void
     {
         $this->update([
-            'finished_at' => now()->startOfMinute(),
-            'is_mismatched' => false
+            'finished_at' => now(),
+            'is_mismatched' => $isMismatched
         ]);
 
         $unFinishedTests = $this->project
             ->tests()->get()
             ->whereNull('projectTest.finished_at')
             ->sortBy('projectTest.order');
-        Log::info((string)$unFinishedTests->count());
+
         if ($unFinishedTests->isEmpty()) {
             $this->project->update([
-                'finished_at' => now()->startOfMinute(),
-                'is_mismatched' => false
+                'finished_at' => now(),
+                'is_mismatched' => $isMismatched
             ]);
-            redirect("/admin/projects/{$this->project->id}");
+            if (Auth::user()) {
+                redirect("/admin/projects/{$this->project->id}");
+            }
         } else {
-            $unFinishedTests->first()
-                ->projectTest
-                ->update([
-                    'started_at' => now()->startOfMinute(),
-                    'is_mismatched' => false
+            if ($isMismatched) {
+                $this->project->update([
+                    'finished_at' => now(),
+                    'is_mismatched' => true
                 ]);
+                if (Auth::user()) {
+                    redirect("/admin/projects/{$this->project->id}");
+                }
+                $unFinishedTests->each(fn (Test $unfinishedTest) => $unfinishedTest
+                    ->projectTest
+                    ->update([
+                        'is_mismatched' => true
+                    ]));
+            } else {
+                $unFinishedTests->first()
+                    ->projectTest
+                    ->update([
+                        'started_at' => now(),
+                        'is_mismatched' => false
+                    ]);
+            }
         }
+    }
+
+    public function setDone(): void
+    {
+        $this->determineStatus(false);
+    }
+
+    public function setFailed(): void
+    {
+        $this->determineStatus(true);
     }
 
     public function test(): BelongsTo
@@ -50,11 +77,11 @@ class ProjectTest extends Pivot
         return $this->belongsTo(Test::class);
     }
 
-    public function renewal(): void
+    public function renewal(int $renewalDuration): void
     {
         $this->update([
             'renewals_count' => $this->renewals_count + 1,
-            'renewals_duration' => $this->renewals_duration + app(GeneralSettings::class)->renewalDurationTime
+            'renewals_duration' => $this->renewals_duration + $renewalDuration
         ]);
         redirect("/admin/projects/{$this->project->id}");
     }
@@ -62,7 +89,7 @@ class ProjectTest extends Pivot
     public function getFinishesAt(): ?Carbon
     {
         return $this->started_at
-            ? $this->started_at->startOfMinute()->addMinutes($this->test->duration + ($this->renewals_duration))
+            ? $this->started_at->addMinutes($this->test->duration + ($this->renewals_duration))
             : null;
     }
 
@@ -79,7 +106,7 @@ class ProjectTest extends Pivot
     public function isExpired(): bool
     {
         return $this->started_at
-            && $this->getFinishesAt()->isBefore(now()->startOfMinute())
+            && $this->getFinishesAt()->isBefore(now())
             && !$this->finished_at;
     }
 
@@ -95,7 +122,7 @@ class ProjectTest extends Pivot
 
     public function isRenewalTimeHasPassed(): bool
     {
-        return now()->startOfMinute()->diffInMinutes($this->getFinishesAt())
+        return now()->diffInMinutes($this->getFinishesAt())
             <= app(GeneralSettings::class)->forbiddenRenewalTime;
     }
 
@@ -107,5 +134,43 @@ class ProjectTest extends Pivot
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function getStatusIcon(): string
+    {
+        if ($this->isFinished()) {
+            if ($this->isMismatched()) {
+                return 'heroicon-o-x-circle';
+            }
+            return 'heroicon-o-check-circle';
+        } else {
+            if ($this->isMismatched()) {
+                return 'heroicon-o-x-circle';
+            } else {
+                if ($this->isStarted()) {
+                    return 'heroicon-o-play-circle';
+                }
+                return 'heroicon-o-clock';
+            }
+        }
+    }
+
+    public function getStatusColor(): string
+    {
+        if ($this->isFinished()) {
+            if ($this->isMismatched()) {
+                return 'danger';
+            }
+            return 'success';
+        } else {
+            if ($this->isMismatched()) {
+                return 'grey';
+            } else {
+                if ($this->isStarted()) {
+                    return 'info';
+                }
+                return 'warning';
+            }
+        }
     }
 }

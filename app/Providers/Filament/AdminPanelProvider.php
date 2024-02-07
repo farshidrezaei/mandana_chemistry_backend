@@ -8,6 +8,7 @@ use App\Filament\Pages\Dashboard;
 use Filament\Support\Colors\Color;
 use Hasnayeen\Themes\ThemesPlugin;
 use App\Filament\Pages\Auth\Login;
+use Filament\Support\Enums\Alignment;
 use Filament\Tables\Columns\TextColumn;
 use App\Filament\Pages\Auth\EditProfile;
 use Filament\Http\Middleware\Authenticate;
@@ -15,10 +16,12 @@ use Filament\Support\Facades\FilamentView;
 use Awcodes\FilamentGravatar\GravatarPlugin;
 use Filament\Infolists\Components\TextEntry;
 use Filament\FontProviders\LocalFontProvider;
+use Filament\Support\Enums\VerticalAlignment;
 use Hasnayeen\Themes\Http\Middleware\SetTheme;
 use Awcodes\FilamentGravatar\GravatarProvider;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
+use Filament\Notifications\Livewire\Notifications;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
@@ -26,6 +29,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Filament\Notifications\Livewire\DatabaseNotifications;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 class AdminPanelProvider extends PanelProvider
@@ -36,9 +40,10 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->colors(['primary' => Color::Amber])
+            ->colors(['primary' => Color::Purple])
             ->font('Yekan Bakh FaNum', asset('/fonts/yekan_bakh_fa/Webfonts/fontiran.css'), LocalFontProvider::class)
             ->spa()
+            ->databaseNotifications(true)
             ->brandLogo(asset('/images/logo.svg'))
             ->brandName(config('app.name'))
             ->profile(EditProfile::class)
@@ -69,7 +74,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 FilamentShieldPlugin::make(),
-                ThemesPlugin::make(),
+//                ThemesPlugin::make(),
                 GravatarPlugin::make()->default('mp')->size(200)
             ]);
     }
@@ -91,27 +96,96 @@ class AdminPanelProvider extends PanelProvider
             '<meta name="msapplication-TileImage" content="/icons/mstile-144x144.png">',
             '<meta name="msapplication-config" content="/icons/browserconfig.xml">',
             '<meta name="theme-color" content="#000000">',
+            '<script>
+    function timer(expiry) {
+        return {
+            expiry: expiry,
+            remaining: null,
+            interval: null,
+            init() {
+                this.setRemaining()
+                this.interval = setInterval(() => {
+                    this.setRemaining();
+                }, 1000);
+            },
+            setRemaining() {
+                let diff = this.expiry - new Date().getTime();
+                diff = parseInt(+diff / 1000);
+                if (diff >= 0) {
+                    this.remaining = diff;
+                }
+
+            },
+            days() {
+                return {
+                    value: this.remaining / 86400,
+                    remaining: this.remaining % 86400
+                };
+            },
+            hours() {
+                return {
+                    value: this.days().remaining / 3600,
+                    remaining: this.days().remaining % 3600
+                };
+            },
+            minutes() {
+                return {
+                    value: this.hours().remaining / 60,
+                    remaining: this.hours().remaining % 60
+                };
+            },
+            seconds() {
+                return {
+                    value: this.minutes().remaining,
+                };
+            },
+            format(value) {
+                return ("0" + parseInt(value)).slice(-2)
+            },
+            time() {
+                return {
+                    days: this.format(this.days().value),
+                    hours: this.format(this.hours().value),
+                    minutes: this.format(this.minutes().value),
+                    seconds: this.format(this.seconds().value),
+                }
+            },
+        }
+    }
+
+</script>',
+            '<script>
+    function playNotificationSound() {
+             let promise = document.querySelector("#notification-sound");
+             console.log(promise);
+             promise.play();
+    }
+</script>'
         ];
 
         FilamentView::registerRenderHook(
             'panels::head.start',
             fn (): string => implode("\n", $metas),
         );
+        DatabaseNotifications::trigger('filament-notifications.database-notifications-trigger');
+        Notifications::alignment(Alignment::Center);
+        Notifications::verticalAlignment(VerticalAlignment::Start);
+
         parent::register();
     }
 
     public function boot(): void
     {
         TextColumn::macro('jalaliDate', function () {
-            $this->formatStateUsing = fn (string $state): string => verta($state)->startMinute()->format('H:i - Y/m/d');
+            $this->formatStateUsing = fn (string $state): string => verta($state)->startMinute()->format('H:i:s - Y/m/d');
             return $this;
         });
         TextEntry::macro('jalaliDate', function () {
-            $this->formatStateUsing = fn (string $state): string => verta($state)->startMinute()->format('H:i - Y/m/d');
+            $this->formatStateUsing = fn (string $state): string => verta($state)->startMinute()->format('H:i:s - Y/m/d');
             return $this;
         });
         TextColumn::macro('time', function () {
-            $this->formatStateUsing = fn (string $state): string => verta($state)->startMinute()->format('H:i');
+            $this->formatStateUsing = fn (string $state): string => verta($state)->startMinute()->format('H:i:s');
             return $this;
         });
     }

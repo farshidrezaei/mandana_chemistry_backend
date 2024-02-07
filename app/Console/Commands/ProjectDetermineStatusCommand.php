@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\Test;
 use App\Models\Project;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class ProjectDetermineStatusCommand extends Command
 {
@@ -15,7 +14,6 @@ class ProjectDetermineStatusCommand extends Command
 
     public function handle(): void
     {
-        Log::info('Start Schedule');
         Project::query()
             ->with('tests')
             ->whereNull('finished_at')
@@ -27,26 +25,14 @@ class ProjectDetermineStatusCommand extends Command
     {
         $tests = $project->tests;
         foreach ($tests->whereNotNull('projectTest.started_at')->whereNull('projectTest.finished_at') as $index => $test) {
-            $isMismatched = $this->handleTestAndReturnMismatchStatus($test, $index);
-            if ($isMismatched) {
-                $test->projectTest->project->update([
-                    'finished_at' => now()->startOfMinute(),
-                    'is_mismatched' => true,
-                ]);
-                return;
-            }
+            $this->handleTestAndReturnMismatchStatus($test, $index);
         }
     }
 
-    private function handleTestAndReturnMismatchStatus(Test $test, int $index): bool
+    private function handleTestAndReturnMismatchStatus(Test $test, int $index): void
     {
         if ($test->projectTest->isExpired()) {
-            $test->projectTest->update([
-                'finished_at' => $test->projectTest->getFinishesAt(),
-                'is_mismatched' => true,
-            ]);
-            return true;
+            $test->projectTest->setDone();
         }
-        return false;
     }
 }

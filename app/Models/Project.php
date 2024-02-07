@@ -50,9 +50,9 @@ class Project extends Model
 
     public function getFinishesAt(): Carbon
     {
-        return $this->started_at->startOfMinute()
+        return $this->started_at
             ->addMinutes(
-                $this->tests->sum('duration')
+                $this->tests->whereNull('projectTest.finished_at')->sum('duration')
                 + ($this->tests->sum('projectTest.renewals_count') * app(GeneralSettings::class)->renewalDurationTime)
             );
     }
@@ -71,7 +71,7 @@ class Project extends Model
     public function isExpired(): bool
     {
         return $this->started_at
-            && $this->getFinishesAt()->isAfter(now()->startOfMinute())
+            && $this->getFinishesAt()->isAfter(now())
             && !$this->finished_at;
     }
 

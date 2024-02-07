@@ -17,6 +17,9 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400">
                     {{ filament()->getUserName($user) }}
                 </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{auth()->user()->roles->implode('name',', ')}}
+                </p>
             </div>
 
             <form

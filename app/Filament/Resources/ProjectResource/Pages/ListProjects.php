@@ -21,13 +21,23 @@ class ListProjects extends ListRecords
 
     public function getTabs(): array
     {
-
         return [
-            trans('resources.project.filters.tabs.all') => Tab::make()->modifyQueryUsing(fn(Builder $query) => $query->withoutTrashed()),
-            trans('resources.project.filters.tabs.testing') => Tab::make()->modifyQueryUsing(fn(Builder $query) => $query->withoutTrashed()->whereNull('finished_at')),
-            trans('resources.project.filters.tabs.done') => Tab::make()->modifyQueryUsing(fn(Builder $query) => $query->withoutTrashed()->whereNotNull('finished_at')->where('is_mismatched',false)),
-            trans('resources.project.filters.tabs.failed') => Tab::make()->modifyQueryUsing(fn(Builder $query) => $query->withoutTrashed()->whereNotNull('finished_at')->where('is_mismatched',true)),
-            trans('resources.project.filters.tabs.archived') => Tab::make()->modifyQueryUsing(fn(Builder $query) => $query->onlyTrashed()),
+            trans('resources.project.filters.tabs.testing') => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->withoutTrashed()
+                    ->whereNull('finished_at')),
+
+            trans('resources.project.filters.tabs.done') => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->withoutTrashed()
+                    ->whereNotNull('finished_at')
+                    ->where('is_mismatched', false)),
+
+            trans('resources.project.filters.tabs.failed') => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->withoutTrashed()
+                    ->whereNotNull('finished_at')
+                    ->where('is_mismatched', true)),
+
+            trans('resources.project.filters.tabs.archived') => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->onlyTrashed()),
         ];
     }
 }

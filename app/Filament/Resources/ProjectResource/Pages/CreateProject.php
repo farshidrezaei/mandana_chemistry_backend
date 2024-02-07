@@ -22,7 +22,7 @@ class CreateProject extends CreateRecord
         $tests->each(function (Test $test, int $index) use ($project) {
             $project->tests()->attach($test, [
                 'order' => $index,
-                'started_at' => $index === 0 ? now()->startOfMinute() : null,
+                'started_at' => $index === 0 ? now() : null,
                 'finished_at' => null,
                 'is_mismatched' => false,
                 'renewals_count' => 0,
@@ -33,7 +33,7 @@ class CreateProject extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['user_id'] = Auth::id();
-        $data['started_at'] = now()->startOfMinute();
+        $data['started_at'] = now();
         return $data;
     }
 }

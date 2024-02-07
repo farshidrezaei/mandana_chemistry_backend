@@ -18,3 +18,4 @@ Route::redirect('/', '/admin');
 Route::get('/login', function () {
     return redirect(route('filament.admin.auth.login'));
 })->name('login');
+Broadcast::routes();

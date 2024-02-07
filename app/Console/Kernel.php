@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
+use App\Console\Commands\NotifyAboutProjects;
 use App\Console\Commands\ProjectDetermineStatusCommand;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -14,6 +15,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command(ProjectDetermineStatusCommand::class)
+            ->everyMinute()
+            ->runInBackground();
+        $schedule->command(NotifyAboutProjects::class)
             ->everyMinute()
             ->runInBackground();
     }

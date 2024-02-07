@@ -59,14 +59,14 @@ class ProductResource extends Resource
                                 ->label('آزمایش')
                                 ->relationship('test', 'title')
                                 ->getSearchResultsUsing(
-                                    fn(string $search) => Test::where('title', 'like', "%{$search}%")->limit(
+                                    fn (string $search) => Test::where('title', 'like', "%{$search}%")->limit(
                                         50
                                     )->pluck(
                                         'title',
                                         'id'
                                     )
                                 )
-                                ->required(),
+                                ->required()->native(false),
                         ]),
                 ]),
 
@@ -85,11 +85,9 @@ class ProductResource extends Resource
                 TextEntry::make('title')->label('نام'),
 
                 \Filament\Infolists\Components\Section::make('آزمایش‌ها')
-                    ->description('')
-                    ->aside()
                     ->schema([
                         RepeatableEntry::make('tests')
-                            ->label('آزمایش‌ها')
+                            ->label('')
                             ->schema([
                                 TextEntry::make('title')->label('نام'),
                                 TextEntry::make('duration')->label('مدت انجام آزمایش')->suffix(' دقیقه ')

@@ -2,14 +2,17 @@
 
 namespace App\Filament\Pages;
 
-use App\Settings\GeneralSettings;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Pages\SettingsPage;
+use App\Settings\GeneralSettings;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
 class ManageGeneralSettings extends SettingsPage
 {
+    use HasPageShield;
+
     protected static ?string $navigationIcon = 'heroicon-o-adjustments-vertical';
     protected static ?string $navigationGroup = 'تنظیمات';
 
@@ -32,10 +35,15 @@ class ManageGeneralSettings extends SettingsPage
                     ->type('number')
                     ->label('زمان اعلان به فروش قبل از پایان آزمایش')
                     ->required(),
-                TextInput::make('renewalDurationTime')
-                    ->type('number')
+                Select::make('renewalDurationTime')
                     ->label('بازه‌های تمدید زمان هر آزمایش')
-                    ->required(),
+                    ->options([
+                        15 => "15 دقیقه",
+                        30 => "30 دقیقه",
+                        60 => "60 دقیقه",
+                        120 => "120 دقیقه",
+                    ])
+                    ->required()->native(false),
 
             ]);
     }

@@ -35,10 +35,11 @@ class UserResource extends Resource
     {
         return $infolist
             ->schema([
-                ImageEntry::make('avatar')->getStateUsing(fn($record) => Gravatar::get($record->email))->circular()->columnSpanFull(),
+                ImageEntry::make('avatar')->getStateUsing(fn ($record) => Gravatar::get($record->email))->circular()->columnSpanFull(),
                 TextEntry::make('name'),
                 TextEntry::make('email'),
-                TextEntry::make('created_at'),
+                TextEntry::make('username'),
+                TextEntry::make('created_at')->jalaliDate(),
                 RepeatableEntry::make('roles')->schema([TextEntry::make('name')])
             ]);
     }
@@ -51,10 +52,10 @@ class UserResource extends Resource
                 TextInput::make('email')->label('ایمیل')->required()->unique(ignoreRecord: true)->email()->nullable(),
                 TextInput::make('username')->label('نام کاربری')->required()->alphaDash()->unique(ignoreRecord: true),
                 PasswordInput::make('password')->label('رمز عبور')->password()->rules([
-                    Password::min(8)/*->letters()->mixedCase()->numbers()->symbols()->uncompromised()*/
-                ]),
+                    Password::min(8)
+                ])->required($form->getOperation() === "create")->dehydrated(fn ($state) => filled($state)),
                 Select::make('roles')
-                    ->preload()
+                    ->preload()->native(false)
                     ->label('نقش‌ها')->searchable()->multiple()->relationship('roles', 'name')->nullable()
             ]);
     }
@@ -66,7 +67,9 @@ class UserResource extends Resource
             ->columns([
                 TextColumn::make('id')->label('#')->searchable(),
                 TextColumn::make('name'),
+                TextColumn::make('roles.name')->badge(),
                 TextColumn::make('email'),
+                TextColumn::make('username'),
                 TextColumn::make('created_at')->jalaliDate(),
             ])
             ->filters([
