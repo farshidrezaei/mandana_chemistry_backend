@@ -27,7 +27,7 @@ class NotifyAboutProjects extends Command
     private function notify(Project $project): void
     {
         $this->notifySales($project);
-        $this->notifyOwner($project);
+        //$this->notifyOwner($project);
     }
 
 
@@ -45,8 +45,8 @@ class NotifyAboutProjects extends Command
     public function notifyLogic(Project $project, int $remaining): void
     {
         if (now()->startOfMinute()->diffInMinutes($project->getFinishesAt()->startOfMinute()->subMinutes($remaining)) === 0) {
-            $users = User::whereBelongsTo(Role::whereName('Sale')->first())->get();
-            $title = " تا" . $remaining . " دقیقه دیگر پروژه" . "«{$project->product->title}»" . " پایان خواهد یافت.";
+            $users = User::whereRelation('roles','name','=','Sale')->get();
+            $title = "آزمایش‌های محصول «{$project->product->title}» تا «{$remaining}» دقیقه دیگر آماده تحویل";
             $body = "";
             Notification::make()
                 ->title($title)
