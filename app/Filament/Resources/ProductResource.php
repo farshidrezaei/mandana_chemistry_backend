@@ -58,6 +58,7 @@ class ProductResource extends Resource
                                 ->preload()
                                 ->label('آزمایش')
                                 ->relationship('test', 'title')
+                                ->distinct()
                                 ->getSearchResultsUsing(
                                     fn (string $search) => Test::where('title', 'like', "%{$search}%")->limit(
                                         50

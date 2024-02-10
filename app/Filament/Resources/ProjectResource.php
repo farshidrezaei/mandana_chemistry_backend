@@ -61,10 +61,9 @@ class ProjectResource extends Resource
                         fn (Model $record): string => verta(
                             $record->started_at
                                 ->addMinutes(
-                                    $record->tests->sum('duration')
-                                    + ($record->tests->sum->renewals_duration * app(GeneralSettings::class)->renewalDurationTime)
+                                    $record->tests->sum('duration') + $record->tests->sum('projectTest.renewals_duration')
                                 )
-                        )->format('H:i - Y/m/d')
+                        )->format('H:i:s - Y/m/d')
                     ),
 
 
@@ -80,7 +79,7 @@ class ProjectResource extends Resource
 //                    }),
 //                TextEntry::make('product_id')->label('زمان پایان')
 //                    ->formatStateUsing(
-//                        fn (Model $record): string => $record->finished_at ? verta($record->finished_at)->format('H:i - Y/m/d') : '-'
+//                        fn (Model $record): string => $record->finished_at ? verta($record->finished_at)->format('H:i:s - Y/m/d') : '-'
 //                    ),
 
                 IconEntry::make('updated_at')
@@ -159,8 +158,10 @@ class ProjectResource extends Resource
                     ->formatStateUsing(
                         fn (Model $record): string => verta(
                             $record->started_at
-                                ->addMinutes($record->tests->sum('duration') + $record->tests->sum->renewals_duration)
-                        )
+                                ->addMinutes(
+                                    $record->tests->sum('duration') + $record->tests->sum('projectTest.renewals_duration')
+                                )
+                        )->format('H:i:s Y-m-d')
                     ),
 
 

@@ -7,21 +7,17 @@ use App\Models\Project;
 use Illuminate\Console\Command;
 use App\Settings\GeneralSettings;
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Log;
 use Filament\Notifications\Notification;
 use Filament\Notifications\Actions\Action;
 
 class NotifyAboutProjects extends Command
 {
-    protected $signature = 'project:determine-status';
+    protected $signature = 'project:notify';
 
-    protected $description = 'Determine Project Status';
+    protected $description = 'Notify About Projects';
 
     public function handle(): void
     {
-        Log::info('Start Schedule');
-
-
         Project::query()
             ->whereNull('finished_at')
             ->get()

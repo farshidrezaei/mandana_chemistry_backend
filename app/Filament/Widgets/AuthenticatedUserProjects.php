@@ -27,7 +27,7 @@ class AuthenticatedUserProjects extends BaseWidget
     public function table(Table $table): Table
     {
         return $table
-            ->query(Project::query()->whereBelongsTo(Auth::user())->withCount('tests'))
+            ->query(Project::query()->whereBelongsTo(Auth::user())->withCount('tests')->latest())
             ->columns([
                 TextColumn::make('product.title')->searchable()
                     ->label('نام محصول'),
@@ -44,8 +44,8 @@ class AuthenticatedUserProjects extends BaseWidget
                     ->formatStateUsing(
                         fn (Model $record): string => verta(
                             $record->started_at
-                                ->addMinutes($record->tests->sum('duration') + $record->tests->sum->renewals_duration)
-                        )
+                                ->addMinutes($record->tests->sum('duration') + $record->tests->sum('projectTest.renewals_duration'))
+                        )->format('H:i:s Y-m-d')
                     ),
 
 

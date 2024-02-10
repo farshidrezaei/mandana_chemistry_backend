@@ -13,7 +13,7 @@ class SuperAdminStatsOverview extends BaseWidget
 {
     use HasWidgetShield;
 
-    protected int|string|array $columnSpan = 'xs';
+    protected int|string|array $columnSpan = 2;
 
     protected static ?int $sort = 2;
 
@@ -22,7 +22,7 @@ class SuperAdminStatsOverview extends BaseWidget
         return [
             Stat::make('تعداد کارمندان', User::count()),
             Stat::make('تعداد محصول', Product::count()),
-            Stat::make('تعداد آزمایش', Project::count()),
+            Stat::make('تعداد پروژه', Project::count()),
         ];
     }
 }

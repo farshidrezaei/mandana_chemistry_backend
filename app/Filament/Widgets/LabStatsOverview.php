@@ -12,7 +12,7 @@ class LabStatsOverview extends BaseWidget
 {
     use HasWidgetShield;
 
-    protected int|string|array $columnSpan = 'sm';
+    protected int|string|array $columnSpan = 2;
 
     protected static ?int $sort = 3;
 

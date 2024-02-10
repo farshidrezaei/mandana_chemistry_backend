@@ -53,7 +53,7 @@ class TestsRelationManager extends RelationManager
                                             $record->duration
                                             + ($record->projectTest->renewals_duration)
                                         )
-                                )->format('H:i - Y/m/d');
+                                )->format('H:i:s - Y/m/d');
                             }
                             return '';
                         }

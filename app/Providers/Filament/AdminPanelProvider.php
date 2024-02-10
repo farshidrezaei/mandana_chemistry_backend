@@ -113,6 +113,8 @@ class AdminPanelProvider extends PanelProvider
                 diff = parseInt(+diff / 1000);
                 if (diff >= 0) {
                     this.remaining = diff;
+                }else{
+                    window.location.reload()
                 }
 
             },
