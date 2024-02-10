@@ -167,7 +167,7 @@ class ProjectResource extends Resource
 
                 CountDownColumn::make('user_id')->label('زمان باقی مانده')
                     ->formatStateUsing(function (Project $record): ?int {
-                        if ($record->isFinished()) {
+                        if ($record->isFinished() || $record->isExpired()) {
                             return null;
                         }
 

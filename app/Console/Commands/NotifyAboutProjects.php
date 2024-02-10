@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Project;
 use Illuminate\Console\Command;
 use App\Settings\GeneralSettings;
-use Spatie\Permission\Models\Role;
 use Filament\Notifications\Notification;
 use Filament\Notifications\Actions\Action;
 
@@ -45,8 +44,8 @@ class NotifyAboutProjects extends Command
     public function notifyLogic(Project $project, int $remaining): void
     {
         if (now()->startOfMinute()->diffInMinutes($project->getFinishesAt()->startOfMinute()->subMinutes($remaining)) === 0) {
-            $users = User::whereRelation('roles','name','=','Sale')->get();
-            $title = "آزمایش‌های محصول «{$project->product->title}» تا «{$remaining}» دقیقه دیگر آماده تحویل";
+            $users = User::whereRelation('roles', 'name', '=', 'Sale')->get();
+            $title = "آزمایش‌های محصول «{$project->product->title}» تا «{$remaining}» دقیقه دیگر به پایان می‌رسد.";
             $body = "";
             Notification::make()
                 ->title($title)

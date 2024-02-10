@@ -12,6 +12,7 @@ class SetDoneAction extends Action
         parent::setUp();
         $this->label('پایان موفق')
             ->button()
+            ->color('success')
             ->action(fn (Test $record, array $data) => $record->projectTest->setDone())
             ->requiresConfirmation()
             ->hidden(

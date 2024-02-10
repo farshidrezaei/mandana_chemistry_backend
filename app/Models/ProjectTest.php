@@ -25,7 +25,8 @@ class ProjectTest extends Pivot
         ]);
 
         $unFinishedTests = $this->project
-            ->tests()->get()
+            ->tests()
+            ->get()
             ->whereNull('projectTest.finished_at')
             ->sortBy('projectTest.order');
 
@@ -128,7 +129,11 @@ class ProjectTest extends Pivot
 
     public function isAbleToRenewal(): bool
     {
-        return $this->isStarted() && !$this->isFinished() && !$this->isUsedAllRenewals() && !$this->isRenewalTimeHasPassed();
+        return $this->isStarted()
+            && !$this->isFinished()
+            && !$this->isUsedAllRenewals()
+            && !$this->isRenewalTimeHasPassed()
+            && !$this->project->isExpired();
     }
 
     public function project(): BelongsTo

@@ -71,8 +71,7 @@ class Project extends Model
     public function isExpired(): bool
     {
         return $this->started_at
-            && $this->getFinishesAt()->isAfter(now())
-            && !$this->finished_at;
+            && $this->getFinishesAt()->isAfter(now());
     }
 
     public function isMismatched(): bool

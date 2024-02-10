@@ -24,12 +24,25 @@ class ProjectDetermineStatusCommand extends Command
     private function determineProject(Project $project): void
     {
         $tests = $project->tests;
-        foreach ($tests->whereNotNull('projectTest.started_at')->whereNull('projectTest.finished_at') as $index => $test) {
-            $this->handleTestAndReturnMismatchStatus($test, $index);
+        $unFinishedTests = $tests->whereNotNull('projectTest.started_at')->whereNull('projectTest.finished_at');
+        if ($unFinishedTests->isNotEmpty()) {
+            foreach ($unFinishedTests as $test) {
+                $this->handleTestAndReturnMismatchStatus($test);
+            }
+        } else {
+            $tests->filter(fn (Test $test) => $test->projectTest->isMismatched())->isEmpty()
+                ? $project->update([
+                'finished_at' => now(),
+                'is_mismatched' => false
+            ])
+                : $project->update([
+                'finished_at' => now(),
+                'is_mismatched' => true
+            ]);
         }
     }
 
-    private function handleTestAndReturnMismatchStatus(Test $test, int $index): void
+    private function handleTestAndReturnMismatchStatus(Test $test): void
     {
         if ($test->projectTest->isExpired()) {
             $test->projectTest->setDone();

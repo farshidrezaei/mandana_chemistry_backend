@@ -5,7 +5,6 @@ namespace App\Filament\Resources\ProjectResource\Actions;
 use App\Models\Test;
 use App\Settings\GeneralSettings;
 use Filament\Tables\Actions\Action;
-use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\Select;
 
 class RenewalAction extends Action
@@ -20,7 +19,6 @@ class RenewalAction extends Action
                 $renewalRangeDuration = (int)app(GeneralSettings::class)->renewalDurationTime;
                 $renewalOptions = [];
                 for ($i = $renewalRangeDuration; $i <= 120; $i += $renewalRangeDuration) {
-                    Log::info('dddd', [$i,$renewalRangeDuration]);
                     $renewalOptions[$i] = $i . ' دقیقه ';
                 }
                 return[

@@ -16,7 +16,6 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command(ProjectDetermineStatusCommand::class)
             ->everyMinute()
-            ->withoutOverlapping()
             ->everySecond()
             ->runInBackground();
         $schedule->command(NotifyAboutProjects::class)
