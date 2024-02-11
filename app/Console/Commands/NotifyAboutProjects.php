@@ -7,6 +7,7 @@ use App\Models\Project;
 use Illuminate\Console\Command;
 use App\Settings\GeneralSettings;
 use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Notifications\Actions\Action;
 
 class NotifyAboutProjects extends Command
@@ -43,8 +44,12 @@ class NotifyAboutProjects extends Command
 
     public function notifyLogic(Project $project, int $remaining): void
     {
-        if (now()->startOfMinute()->diffInMinutes($project->getFinishesAt()->startOfMinute()->subMinutes($remaining)) === 0) {
-            $users = User::whereRelation('roles', 'name', '=', 'Sale')->get();
+        if (now()->diffInSeconds($project->getFinishesAt()->subSeconds($remaining * 60)) === 0) {
+            $users = User::whereHas(
+                'roles',
+                fn (Builder $roles) => $roles->whereRelation('permissions', 'name', '=', 'can_notify_as_sale_user')
+            )
+                ->get();
             $title = "آزمایش‌های محصول «{$project->product->title}» تا «{$remaining}» دقیقه دیگر به پایان می‌رسد.";
             $body = "";
             Notification::make()

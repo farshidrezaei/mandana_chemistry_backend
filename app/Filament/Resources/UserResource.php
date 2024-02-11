@@ -21,8 +21,9 @@ use Filament\Infolists\Components\ImageEntry;
 use App\Filament\Resources\UserResource\Pages;
 use Filament\Infolists\Components\RepeatableEntry;
 use Phpsa\FilamentPasswordReveal\Password as PasswordInput;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class UserResource extends Resource
+class UserResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = User::class;
 
@@ -30,6 +31,25 @@ class UserResource extends Resource
 
     protected static ?string $navigationGroup = 'تنظیمات';
 
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'restore',
+            'restore_any',
+            'replicate',
+            'reorder',
+            'delete',
+            'delete_any',
+            'force_delete',
+            'force_delete_any',
+            'can_notify_as_sale',
+            'can_notify_as_lab',
+        ];
+    }
 
     public static function infolist(Infolist $infolist): Infolist
     {

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ProjectResource\Actions;
 use App\Models\Test;
 use App\Settings\GeneralSettings;
 use Filament\Tables\Actions\Action;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 
 class RenewalAction extends Action
@@ -27,6 +28,10 @@ class RenewalAction extends Action
             })
             ->action(fn (Test $record, array $data) => $record->projectTest->renewal($data['renewal_duration']))
             ->requiresConfirmation()
-            ->hidden(fn (Test $record): bool => !$record->projectTest->isAbleToRenewal());
+            ->hidden(
+                fn (Test $record): bool =>
+                !Auth::user()->can('renewal_project_test_project')
+                || !$record->projectTest->isAbleToRenewal()
+            );
     }
 }

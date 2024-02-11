@@ -76,5 +76,10 @@ return [
         'replicate' => 'تکثیر',
         'reorder' => 'مرتب‌سازی',
         'restore_any' => 'بازیابی همه',
+        'set_done_project_test' => 'ثبت موفق آزمایش',
+        'set_failed_project_test' => 'ثبت ناموفق آزمایش',
+        'renewal_project_test' => 'تمدید آزمایش',
+        'can_notify_as_sale' => 'دریافت اعلان به عنوان فروش',
+        'can_notify_as_lab' => 'دریافت اعلان به عنوان آزمایشگاه',
     ],
 ];

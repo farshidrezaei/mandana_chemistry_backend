@@ -5,6 +5,9 @@ namespace App\Console\Commands;
 use App\Models\Test;
 use App\Models\Project;
 use Illuminate\Console\Command;
+use App\Settings\GeneralSettings;
+use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action;
 
 class ProjectDetermineStatusCommand extends Command
 {
@@ -27,7 +30,7 @@ class ProjectDetermineStatusCommand extends Command
         $unFinishedTests = $tests->whereNotNull('projectTest.started_at')->whereNull('projectTest.finished_at');
         if ($unFinishedTests->isNotEmpty()) {
             foreach ($unFinishedTests as $test) {
-                $this->handleTestAndReturnMismatchStatus($test);
+                $this->handleTest($test);
             }
         } else {
             $tests->filter(fn (Test $test) => $test->projectTest->isMismatched())->isEmpty()
@@ -42,10 +45,47 @@ class ProjectDetermineStatusCommand extends Command
         }
     }
 
-    private function handleTestAndReturnMismatchStatus(Test $test): void
+    private function handleTest(Test $test): void
     {
         if ($test->projectTest->isExpired()) {
             $test->projectTest->setDone();
+        } else {
+            $remaining = app(GeneralSettings::class)->beforeFinishAlertTime;
+            $project = $test->projectTest->project;
+            if (
+                $project->user->can('can_notify_as_sale_user')
+                && now()->diffInSeconds(
+                    $test->projectTest
+                        ->getFinishesAt()
+                        ->subSeconds($remaining * 60) === 0
+                )
+            ) {
+                $title = "مرحله «{$test->title}» آزمایش محصول «{$project->product->title}» تا «{$remaining}» دقیقه دیگر به پایان می‌رسد";
+                $body = "";
+                Notification::make()
+                    ->title($title)
+                    ->body($body)
+                    ->actions([
+                        Action::make('showNotifications')->label('مشاهده پروژه')
+                            ->button()
+                            ->url("/admin/projects/$project->id")
+                    ])
+                    ->sendToDatabase([$project->user]);
+
+                Notification::make()
+                    ->title($title)
+                    ->body($body)
+                    ->actions([
+                        Action::make('showNotifications')->label('مشاهده پیغام‌ها')
+                            ->button()
+                            ->dispatch('open-modal', ['id' => 'database-notifications']),
+                        Action::make('showNotifications')->label('مشاهده پروژه')
+                            ->button()
+                            ->url("/admin/projects/$project->id")
+
+                    ])
+                    ->broadcast([$project->user]);
+            }
         }
     }
 }
