@@ -53,7 +53,7 @@ class ProjectDetermineStatusCommand extends Command
             $remaining = app(GeneralSettings::class)->beforeFinishAlertTime;
             $project = $test->projectTest->project;
             if (
-                $project->user->can('can_notify_as_sale_user')
+                $project->user->can('can_notify_as_lab_user')
                 && (!$test->projectTest->has_been_notified)
                 && now()->diffInMinutes(
                     $test->projectTest
