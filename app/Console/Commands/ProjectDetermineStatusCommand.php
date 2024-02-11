@@ -54,10 +54,10 @@ class ProjectDetermineStatusCommand extends Command
             $project = $test->projectTest->project;
             if (
                 $project->user->can('can_notify_as_sale_user')
-                && now()->diffInSeconds(
+                && now()->diffInMinutes(
                     $test->projectTest
                         ->getFinishesAt()
-                        ->subSeconds($remaining * 60) === 0
+                        ->subMinutes($remaining) === 0
                 )
             ) {
                 $title = "مرحله «{$test->title}» آزمایش محصول «{$project->product->title}» تا «{$remaining}» دقیقه دیگر به پایان می‌رسد";
