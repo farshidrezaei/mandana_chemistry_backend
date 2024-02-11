@@ -6,6 +6,7 @@ use App\Models\Test;
 use App\Models\Project;
 use Illuminate\Console\Command;
 use App\Settings\GeneralSettings;
+use Illuminate\Support\Facades\Log;
 use Filament\Notifications\Notification;
 use Filament\Notifications\Actions\Action;
 
@@ -50,44 +51,51 @@ class ProjectDetermineStatusCommand extends Command
         if ($test->projectTest->isExpired()) {
             $test->projectTest->setDone();
         } else {
-            $remaining = app(GeneralSettings::class)->beforeFinishAlertTime;
-            $project = $test->projectTest->project;
-            if (
-                $project->user->can('can_notify_as_lab_user')
-                && (!$test->projectTest->has_been_notified)
-                && now()->diffInMinutes(
-                    $test->projectTest
-                        ->getFinishesAt()
-                        ->subMinutes($remaining) === 0
-                )
-            ) {
-                $title = "مرحله «{$test->title}» آزمایش محصول «{$project->product->title}» تا «{$remaining}» دقیقه دیگر به پایان می‌رسد";
-                $body = "";
-                Notification::make()
-                    ->title($title)
-                    ->body($body)
-                    ->actions([
-                        Action::make('showNotifications')->label('مشاهده پروژه')
-                            ->button()
-                            ->url("/admin/projects/$project->id")
-                    ])
-                    ->sendToDatabase([$project->user]);
+            $this->notifyOwner($test);
+        }
+    }
 
-                Notification::make()
-                    ->title($title)
-                    ->body($body)
-                    ->actions([
-                        Action::make('showNotifications')->label('مشاهده پیغام‌ها')
-                            ->button()
-                            ->dispatch('open-modal', ['id' => 'database-notifications']),
-                        Action::make('showNotifications')->label('مشاهده پروژه')
-                            ->button()
-                            ->url("/admin/projects/$project->id")
+    private function notifyOwner(Test $test): void
+    {
+        $remaining = app(GeneralSettings::class)->beforeFinishAlertTime;
 
-                    ])
-                    ->broadcast([$project->user]);
-                $test->projectTest->update(['has_been_notified' => true]);
-            }
+        $project = $test->projectTest->project;
+        if (
+            $project->user->can('can_notify_as_lab_user')
+            && (!$test->projectTest->has_been_notified)
+            && now()->diffInSeconds(
+                $test->projectTest
+                    ->getFinishesAt()
+                    ->subSeconds($remaining * 60)
+            ) === 0
+        ) {
+            Log::info('inja', ['oomad']);
+            $title = "مرحله «{$test->title}» آزمایش محصول «{$project->product->title}» تا «{$remaining}» دقیقه دیگر به پایان می‌رسد";
+            $body = "";
+                        Notification::make()
+                            ->title($title)
+                            ->body($body)
+                            ->actions([
+                                Action::make('showNotifications')->label('مشاهده پروژه')
+                                    ->button()
+                                    ->url("/admin/projects/$project->id")
+                            ])
+                            ->sendToDatabase([$project->user]);
+
+                        Notification::make()
+                            ->title($title)
+                            ->body($body)
+                            ->actions([
+                                Action::make('showNotifications')->label('مشاهده پیغام‌ها')
+                                    ->button()
+                                    ->dispatch('open-modal', ['id' => 'database-notifications']),
+                                Action::make('showNotifications')->label('مشاهده پروژه')
+                                    ->button()
+                                    ->url("/admin/projects/$project->id")
+
+                            ])
+                            ->broadcast([$project->user]);
+            $test->projectTest->setAsNotified();
         }
     }
 }

@@ -179,15 +179,15 @@ class AdminPanelProvider extends PanelProvider
     public function boot(): void
     {
         TextColumn::macro('jalaliDate', function () {
-            $this->formatStateUsing = fn (string $state): string => verta($state)->startMinute()->format('H:i:s - Y/m/d');
+            $this->formatStateUsing = fn (string $state): string => verta($state)->format('H:i:s - Y/m/d');
             return $this;
         });
         TextEntry::macro('jalaliDate', function () {
-            $this->formatStateUsing = fn (string $state): string => verta($state)->startMinute()->format('H:i:s - Y/m/d');
+            $this->formatStateUsing = fn (string $state): string => verta($state)->format('H:i:s - Y/m/d');
             return $this;
         });
         TextColumn::macro('time', function () {
-            $this->formatStateUsing = fn (string $state): string => verta($state)->startMinute()->format('H:i:s');
+            $this->formatStateUsing = fn (string $state): string => verta($state)->format('H:i:s');
             return $this;
         });
     }

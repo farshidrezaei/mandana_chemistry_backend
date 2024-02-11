@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use App\Settings\GeneralSettings;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -48,12 +47,13 @@ class Project extends Model
             ])->orderByPivot('order');
     }
 
-    public function getFinishesAt(): Carbon
+    public function getFinishesAt(): ?Carbon
     {
-        return $this->started_at
-            ->addMinutes(
-                $this->tests->whereNull('projectTest.finished_at')->sum('duration')
-                + ($this->tests->sum('projectTest.renewals_count') * app(GeneralSettings::class)->renewalDurationTime)
+        $tests = $this->tests->whereNull('projectTest.finished_at')->sortBy('id');
+        $first = $tests->first();
+        return $first->projectTest->started_at
+            ?->addMinutes(
+                $tests->sum('duration') + ($tests->sum('projectTest.renewals_duration'))
             );
     }
 

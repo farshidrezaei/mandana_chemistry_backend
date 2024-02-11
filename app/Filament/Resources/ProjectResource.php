@@ -10,7 +10,6 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Infolists\Infolist;
-use App\Settings\GeneralSettings;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
@@ -89,21 +88,6 @@ class ProjectResource extends Resource implements HasShieldPermissions
                         )->format('H:i:s - Y/m/d')
                     ),
 
-
-//                TextEntry::make('user_id')->label('زمان باقی مانده')
-//                    ->formatStateUsing(function (Model $record): string {
-//                        $duration = $record->tests->sum('duration') + ($record->tests->sum->renewals_duration * app(
-//                            GeneralSettings::class
-//                        )->renewalDurationTime);
-//                        $remaining = $record->started_at->addMinutes($duration);
-//                        return now()->isBefore($remaining)
-//                            ? (now()->diffInMinutes($remaining)) . ' دقیقه '
-//                            : '-';
-//                    }),
-//                TextEntry::make('product_id')->label('زمان پایان')
-//                    ->formatStateUsing(
-//                        fn (Model $record): string => $record->finished_at ? verta($record->finished_at)->format('H:i:s - Y/m/d') : '-'
-//                    ),
 
                 IconEntry::make('updated_at')
                     ->label('وضعیت')

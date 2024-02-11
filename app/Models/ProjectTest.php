@@ -124,8 +124,8 @@ class ProjectTest extends Pivot
 
     public function isRenewalTimeHasPassed(): bool
     {
-        return now()->diffInMinutes($this->getFinishesAt())
-            <= app(GeneralSettings::class)->forbiddenRenewalTime;
+        return now()->diffInSeconds($this->getFinishesAt())
+            <= app(GeneralSettings::class)->forbiddenRenewalTime * 60;
     }
 
     public function isAbleToRenewal(): bool
@@ -178,5 +178,10 @@ class ProjectTest extends Pivot
                 return 'warning';
             }
         }
+    }
+
+    public function setAsNotified(): void
+    {
+        $this->update(['has_been_notified' => true]);
     }
 }

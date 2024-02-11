@@ -44,7 +44,7 @@ class NotifyAboutProjects extends Command
 
     public function notifyLogic(Project $project, int $remaining): void
     {
-        if (now()->diffInMinutes($project->getFinishesAt()->subMinutes($remaining)) === 0) {
+        if (now()->diffInSeconds($project->getFinishesAt()?->subSeconds($remaining * 60)) === 0) {
             $users = User::whereHas(
                 'roles',
                 fn (Builder $roles) => $roles->whereRelation('permissions', 'name', '=', 'can_notify_as_sale_user')
