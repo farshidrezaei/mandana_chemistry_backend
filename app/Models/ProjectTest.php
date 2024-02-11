@@ -13,7 +13,8 @@ class ProjectTest extends Pivot
     protected $casts = [
         'started_at' => 'datetime',
         'finished_at' => 'datetime',
-        'is_mismatched' => 'boolean'
+        'is_mismatched' => 'boolean',
+        'has_been_notified' => 'boolean',
     ];
     protected $guarded = ['id'];
 

@@ -54,6 +54,7 @@ class ProjectDetermineStatusCommand extends Command
             $project = $test->projectTest->project;
             if (
                 $project->user->can('can_notify_as_sale_user')
+                && (!$test->projectTest->has_been_notified)
                 && now()->diffInMinutes(
                     $test->projectTest
                         ->getFinishesAt()
@@ -85,6 +86,7 @@ class ProjectDetermineStatusCommand extends Command
 
                     ])
                     ->broadcast([$project->user]);
+                $test->projectTest->update(['has_been_notified' => true]);
             }
         }
     }
