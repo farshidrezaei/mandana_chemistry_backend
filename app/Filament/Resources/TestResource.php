@@ -37,9 +37,9 @@ class TestResource extends Resource
                     ->label('مدت زمان انجام')
                     ->type('number')
                     ->suffix('دقیقه')->columnSpanFull(),
-                TextInput::make('renewals_count')
+                Hidden::make('renewals_count')
                     ->label('دفعات تمدید')
-                    ->type('number')
+                    ->default(0)
                     ->columnSpanFull(),
                 Hidden::make('user_id')
                     ->default(Auth::id())
@@ -56,7 +56,6 @@ class TestResource extends Resource
                 Tables\Columns\TextColumn::make('duration')
                     ->label('مدت زمان انجام')
                     ->suffix(' دقیقه '),
-                Tables\Columns\TextColumn::make('renewals_count')->label('دفعات تمدید')
             ])
             ->filters([
                 //

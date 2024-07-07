@@ -12,8 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class Test extends Model
 {
-    protected $guarded = ['id'];
     use  HasFactory;
+    protected $guarded = ['id'];
 
     public function testProducts(): HasMany
     {
@@ -29,4 +29,6 @@ class Test extends Model
     {
         return $this->belongsToMany(Project::class)->using(ProjectTest::class)->as('projectTest');
     }
+
+
 }

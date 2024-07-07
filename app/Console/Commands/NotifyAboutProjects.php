@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
 use App\Models\Project;
-use Illuminate\Console\Command;
+use App\Models\User;
 use App\Settings\GeneralSettings;
-use Filament\Notifications\Notification;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Notifications\Actions\Action;
+use Filament\Notifications\Notification;
+use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
 
 class NotifyAboutProjects extends Command
 {
@@ -44,7 +44,10 @@ class NotifyAboutProjects extends Command
 
     public function notifyLogic(Project $project, int $remaining): void
     {
-        if (now()->diffInSeconds($project->getFinishesAt()?->subSeconds($remaining * 60)) === 0) {
+
+        if (
+            (int)now()->diffInSeconds($project->getFinishesAt()?->subSeconds($remaining * 60)) === 0
+        ) {
             $users = User::whereHas(
                 'roles',
                 fn (Builder $roles) => $roles->whereRelation('permissions', 'name', '=', 'can_notify_as_sale_user')

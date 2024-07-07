@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\ProjectResource\Actions;
 
-use App\Models\Test;
-use Filament\Tables\Actions\Action;
+use App\Models\Project;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\TextInput;
+use Filament\Actions\Action;
 use Illuminate\Support\Facades\Auth;
 
 class SetFailedAction extends Action
@@ -11,18 +13,33 @@ class SetFailedAction extends Action
     protected function setUp(): void
     {
         parent::setUp();
-        $this->label('پایان ناموفق')
+
+        $this->label('نامنطبق است')
             ->button()
+            ->form(
+                fn () => [
+                    TextInput::make('body')->label('متن')->required()->maxLength(100),
+                    FileUpload::make('attachment')
+                        ->nullable()
+                        ->rules([
+                            'nullable',
+                            'file',
+                            'mimes:jpg,jpeg,png,gif,pdf',
+                            'max:5100'
+                        ])
+                        ->label('پیوست')
+                        ->directory('notes-attachments'),
+                ]
+            )
+            ->icon('heroicon-o-x-circle')
             ->color('danger')
-            ->action(fn (Test $record, array $data) => $record->projectTest->setFailed())
+            ->action(fn (Project $record, array $data) => $record->setFailed($data))
             ->requiresConfirmation()
             ->hidden(
-                fn (Test $record): bool =>
+                fn (Project $record): bool =>
                     !Auth::user()->can('set_failed_project_test_project')
-                   || (!$record->projectTest->isStarted()
-                    || $record->projectTest->project->isFinished()
-                    || $record->projectTest->isFinished()
-                    || $record->projectTest->isExpired())
+                    || !$record->isStarted()
+                    || $record->isFinished()
             );
     }
 }

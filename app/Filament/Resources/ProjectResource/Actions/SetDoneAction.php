@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\ProjectResource\Actions;
 
-use App\Models\Test;
-use Filament\Tables\Actions\Action;
+use App\Models\Project;
+use Filament\Forms\Components\TextInput;
+use Filament\Actions\Action;
 use Illuminate\Support\Facades\Auth;
 
 class SetDoneAction extends Action
@@ -11,18 +12,23 @@ class SetDoneAction extends Action
     protected function setUp(): void
     {
         parent::setUp();
-        $this->label('پایان موفق')
+        $this->label('منطبق است')
             ->button()
+            ->form(
+                fn () => [
+                    TextInput::make('body')->label('متن')->required()->maxLength(100),
+
+                ]
+            )
             ->color('success')
-            ->action(fn (Test $record, array $data) => $record->projectTest->setDone())
+            ->icon('heroicon-o-check-circle')
+            ->action(fn (Project $record, array $data) => $record->setDone($data))
             ->requiresConfirmation()
             ->hidden(
-                fn (Test $record): bool =>
+                fn (Project $record): bool =>
                     !Auth::user()->can('set_done_project_test_project')
-                    || (!$record->projectTest->isStarted()
-                    || $record->projectTest->project->isFinished()
-                    || $record->projectTest->isFinished()
-                    || $record->projectTest->isExpired())
+                    || !$record->isStarted()
+                    || $record->isFinished()
             );
     }
 }

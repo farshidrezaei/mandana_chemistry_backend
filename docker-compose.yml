@@ -7,6 +7,7 @@ services:
     build: .
     ports:
       - "${SERVE_PORT}:8000"
+      - "8080:8080"
     container_name: mandana_chemistry-backend
     networks:
         - mandana_chemistry-network

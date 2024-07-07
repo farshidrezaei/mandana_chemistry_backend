@@ -2,18 +2,15 @@
 
 namespace App\Filament\Resources\ProjectResource\RelationManagers;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Test;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
-use App\Tables\Columns\CountDownColumn;
-use Filament\Resources\RelationManagers\RelationManager;
-use App\Filament\Resources\ProjectResource\Actions\SetDoneAction;
 use App\Filament\Resources\ProjectResource\Actions\RenewalAction;
-use App\Filament\Resources\ProjectResource\Actions\SetFailedAction;
+use App\Models\Test;
+use App\Tables\Columns\NewCountDownColumn;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class TestsRelationManager extends RelationManager
 {
@@ -24,6 +21,8 @@ class TestsRelationManager extends RelationManager
     protected static ?string $modelLabel = 'آزمایش';
     protected static ?string $pluralModelLabel = 'آزمایش‌ها';
 
+
+
     public function form(Form $form): Form
     {
         return $form
@@ -33,6 +32,7 @@ class TestsRelationManager extends RelationManager
                     ->maxLength(255),
             ]);
     }
+
 
     public function table(Table $table): Table
     {
@@ -59,25 +59,22 @@ class TestsRelationManager extends RelationManager
                         }
                     ),
 
-                CountDownColumn::make('user_id')->label('زمان باقی مانده')
+
+                NewCountDownColumn::make('user_id')->label('زمان باقی مانده')
                     ->formatStateUsing(function (Test $record): ?int {
-                        if ($record->projectTest->isFinished() || !$record->projectTest->isStarted()) {
+                        $finishedAt = $record->projectTest->getFinishesAt();
+                        if (!$finishedAt) {
                             return null;
                         }
-
-                        return now()->diffInSeconds($record->projectTest->getFinishesAt());
+                        return $record->projectTest->getRemainingSeconds();
                     }),
 
                 Tables\Columns\TextColumn::make('projectTest.renewals_count')
                     ->formatStateUsing(
-                        fn (Test $record): string => "{$record->projectTest->renewals_count}/{$record->projectTest->test->renewals_count}"
+                        fn (Test $record): string => "{$record->projectTest->renewals_count}"
                     )
                     ->label('تعداد تمدید'),
                 Tables\Columns\TextColumn::make('projectTest.renewals_duration')->label('مقدار تمدید')->suffix(' دقیقه '),
-                IconColumn::make('is_mismatched')
-                    ->label('وضعیت')
-                    ->icon(fn (Test $record): string => $record->projectTest->getStatusIcon())
-                    ->color(fn (Test $record): string => $record->projectTest->getStatusColor())
             ])
             ->filters([
                 //
@@ -86,11 +83,7 @@ class TestsRelationManager extends RelationManager
 //                Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-//                Tables\Actions\EditAction::make(),
-//                Tables\Actions\DeleteAction::make(),
                 RenewalAction::make('renewal'),
-                SetDoneAction::make('setDone'),
-                SetFailedAction::make('setFailed'),
             ])
             ->bulkActions([
 //                Tables\Actions\BulkActionGroup::make([

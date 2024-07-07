@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources\ProjectResource\Pages;
 
-use App\Models\Test;
-use App\Models\Project;
-use Illuminate\Support\Facades\Auth;
-use Filament\Resources\Pages\CreateRecord;
+use App\Enums\ProjectStatusEnum;
 use App\Filament\Resources\ProjectResource;
+use App\Models\Project;
+use App\Models\Test;
+use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Auth;
 
 class CreateProject extends CreateRecord
 {
@@ -28,6 +29,13 @@ class CreateProject extends CreateRecord
                 'renewals_count' => 0,
             ]);
         });
+        $project->update(['status' => ProjectStatusEnum::PROCESSING]);
+        activity()
+            ->event('started')
+            ->useLog('projects')
+            ->performedOn($project)
+            ->causedBy(Auth::user())
+            ->log('آزمایش شروع شد.');
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array

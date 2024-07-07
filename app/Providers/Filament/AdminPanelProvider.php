@@ -31,6 +31,8 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Filament\Notifications\Livewire\DatabaseNotifications;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
+use ShuvroRoy\FilamentSpatieLaravelBackup\FilamentSpatieLaravelBackupPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -42,7 +44,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->colors(['primary' => Color::Purple])
             ->font('Yekan Bakh FaNum', asset('/fonts/yekan_bakh_fa/Webfonts/fontiran.css'), LocalFontProvider::class)
-            ->spa()
+           // ->spa()
             ->databaseNotifications(true)
             ->brandLogo(asset('/images/logo.svg'))
             ->brandName(config('app.name'))
@@ -75,7 +77,9 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentShieldPlugin::make(),
 //                ThemesPlugin::make(),
-                GravatarPlugin::make()->default('mp')->size(200)
+                GravatarPlugin::make()->default('mp')->size(200),
+                FilamentApexChartsPlugin::make(),
+                FilamentSpatieLaravelBackupPlugin::make()->usingQueue('backup'),
             ]);
     }
 
@@ -97,72 +101,29 @@ class AdminPanelProvider extends PanelProvider
             '<meta name="msapplication-config" content="/icons/browserconfig.xml">',
             '<meta name="theme-color" content="#000000">',
             '<script>
-    function timer(expiry) {
-        return {
-            expiry: expiry,
-            remaining: null,
-            interval: null,
-            init() {
-                this.setRemaining()
-                this.interval = setInterval(() => {
-                    this.setRemaining();
-                }, 1000);
-            },
-            setRemaining() {
-                let diff = this.expiry - new Date().getTime();
-                diff = parseInt(+diff / 1000);
-                if (diff >= 0) {
-                    this.remaining = diff;
-                }else{
-                    window.location.reload()
-                }
-
-            },
-            days() {
-                return {
-                    value: this.remaining / 86400,
-                    remaining: this.remaining % 86400
-                };
-            },
-            hours() {
-                return {
-                    value: this.days().remaining / 3600,
-                    remaining: this.days().remaining % 3600
-                };
-            },
-            minutes() {
-                return {
-                    value: this.hours().remaining / 60,
-                    remaining: this.hours().remaining % 60
-                };
-            },
-            seconds() {
-                return {
-                    value: this.minutes().remaining,
-                };
-            },
-            format(value) {
-                return ("0" + parseInt(value)).slice(-2)
-            },
-            time() {
-                return {
-                    days: this.format(this.days().value),
-                    hours: this.format(this.hours().value),
-                    minutes: this.format(this.minutes().value),
-                    seconds: this.format(this.seconds().value),
-                }
-            },
-        }
-    }
-
-</script>',
-            '<script>
     function playNotificationSound() {
              let promise = document.querySelector("#notification-sound");
              console.log(promise);
              promise.play();
     }
 </script>'
+            ,
+            '<style>
+.fi-dropdown-panel {
+    max-width: 30em !important;
+    width: 28em !important;
+}
+//.filament-apex-charts-header{
+//direction: ltr !important;
+//}
+.filament-apex-charts-filter-form> div:nth-child(3) {
+direction: rtl !important;
+width: 40em !important;
+left: 0 !important;
+right: auto !important;
+}
+
+</style>'
         ];
 
         FilamentView::registerRenderHook(

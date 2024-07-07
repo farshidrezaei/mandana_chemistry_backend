@@ -2,8 +2,8 @@
 
 namespace App\Tables\Columns;
 
+use Filament\Infolists\Components\Concerns\CanFormatState;
 use Filament\Tables\Columns\Column;
-use Filament\Tables\Columns\Concerns\CanFormatState;
 
 class CountDownColumn extends Column
 {

@@ -18,8 +18,8 @@ class StatsOverview extends BaseWidget
     {
         return [
             Stat::make('درحال آزمایش', Project::whereFinishedAt(null)->count()),
-            Stat::make('آماده تحویل', Project::whereNotNull('finished_at')->whereIsMismatched(false)->count()),
-            Stat::make('عدم تطابق', Project::whereNotNull('finished_at')->whereIsMismatched(true)->count()),
+            Stat::make('منطبق', Project::whereNotNull('finished_at')->whereIsMismatched(false)->count()),
+            Stat::make('نا منطبق', Project::whereNotNull('finished_at')->whereIsMismatched(true)->count()),
             Stat::make('آرشیو شده', Project::onlyTrashed()->count()),
         ];
     }

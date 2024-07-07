@@ -6,7 +6,8 @@ RUN groupadd -g 1000 laravel \
     && usermod -u 1000 laravel \
     && groupmod -g 1000 laravel
 
-RUN apt install cron -y
+RUN apt update
+RUN apt install cron default-mysql-client -y
 
 RUN mkdir -p /etc/supervisor/conf.d
 COPY docker/supervisor.conf /etc/supervisor/conf.d/supervisor.conf

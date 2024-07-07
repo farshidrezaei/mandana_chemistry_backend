@@ -3,11 +3,11 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Project;
+use App\Tables\Columns\NewCountDownColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
-use App\Tables\Columns\CountDownColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -49,13 +49,13 @@ class AuthenticatedUserProjects extends BaseWidget
                     ),
 
 
-                CountDownColumn::make('user_id')->label('زمان باقی مانده')
+                NewCountDownColumn::make('user_id')->label('زمان باقی مانده')
                     ->formatStateUsing(function (Project $record): ?int {
                         if ($record->isFinished()) {
                             return null;
                         }
 
-                        return now()->diffInSeconds($record->getFinishesAt());
+                        return (int)now()->diffInSeconds($record->getFinishesAt());
                     }),
                 TextColumn::make('finished_at')->label('زمان پایان')->jalaliDate(),
                 IconColumn::make('updated_at')

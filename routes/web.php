@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Livewire\CountDown;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,10 +13,11 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
 Route::redirect('/', '/admin');
 
 Route::get('/login', function () {
     return redirect(route('filament.admin.auth.login'));
 })->name('login');
 Broadcast::routes();
+
+Livewire::component('count-down', CountDown::class);
