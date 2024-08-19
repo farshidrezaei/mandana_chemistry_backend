@@ -6,7 +6,7 @@ cron -f &
 
 # php artisan reverb:start
 
-# php artisan octane:start  --host=0.0.0.0
+php artisan octane:frankenphp  --host=0.0.0.0
 
 
 
