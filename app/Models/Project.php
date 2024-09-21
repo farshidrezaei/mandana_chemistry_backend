@@ -20,10 +20,9 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Project extends Model implements HasMedia
 {
-    use InteractsWithMedia;
     use HasFactory;
+    use InteractsWithMedia;
     use SoftDeletes;
-
 
     protected $casts = [
         'started_at' => 'datetime',
@@ -88,7 +87,7 @@ class Project extends Model implements HasMedia
             ->whereNull('projectTest.finished_at')
             ->sortBy('id');
         $first = $tests->shift();
-        if ($first === null || !$first->projectTest->started_at) {
+        if ($first === null || ! $first->projectTest->started_at) {
             return null;
         }
 
@@ -102,9 +101,9 @@ class Project extends Model implements HasMedia
     public function getRemainingMinutes(): ?int
     {
         $finishedAt = $this->getFinishesAt();
-        return (int)$finishedAt?->diffInMinutes(now());
-    }
 
+        return (int) $finishedAt?->diffInMinutes(now());
+    }
 
     public function isFinished(): bool
     {
@@ -120,11 +119,11 @@ class Project extends Model implements HasMedia
     {
         return $this->started_at && $this->getFinishesAt()?->isBefore(now());
     }
+
     public function isPaused(): bool
     {
         return $this->status === ProjectStatusEnum::PAUSED;
     }
-
 
     public function addNote(string $body, ?string $attachment): void
     {
@@ -135,20 +134,19 @@ class Project extends Model implements HasMedia
         ]);
     }
 
-
     private function determineStatus(bool $isMismatched): void
     {
         DB::transaction(function () use ($isMismatched) {
             $this->update([
                 'finished_at' => now(),
-                'is_mismatched' => $isMismatched
+                'is_mismatched' => $isMismatched,
             ]);
             $this
                 ->tests
                 ->whereNull('projectTest.finished_at')
                 ->sortBy('projectTest.order')->each(fn (Test $test) => $test->projectTest->update([
                     'finished_at' => now(),
-                    'is_mismatched' => $isMismatched
+                    'is_mismatched' => $isMismatched,
                 ]));
         });
 
@@ -158,12 +156,12 @@ class Project extends Model implements HasMedia
             ->performedOn($this)
             ->causedBy(Auth::user())
             ->log(
-                " آزمایش "
-                . "توسط "
-                . $this->user->name
-                . " با وضعیت "
-                . ($isMismatched ? "'نامنطبق'" : "'منطبق'")
-                . " تمام شد. "
+                ' آزمایش '
+                .'توسط '
+                .$this->user->name
+                .' با وضعیت '
+                .($isMismatched ? "'نامنطبق'" : "'منطبق'")
+                .' تمام شد. '
             );
 
         redirect("/admin/projects/{$this->id}");
@@ -195,20 +193,21 @@ class Project extends Model implements HasMedia
             );
 
         activity()
-          ->event('paused')
-          ->useLog('projects')
-          ->performedOn($this)
-          ->causedBy(Auth::user())
-          ->log(
-              " آزمایش "
-              . "توسط "
-              . $this->user->name
-              . " متوقف شد و این علت برای آن ذکر شد: "
-              . $reason
-          );
+            ->event('paused')
+            ->useLog('projects')
+            ->performedOn($this)
+            ->causedBy(Auth::user())
+            ->log(
+                ' آزمایش '
+                .'توسط '
+                .$this->user->name
+                .' متوقف شد و این علت برای آن ذکر شد: '
+                .$reason
+            );
 
         redirect("/admin/projects/{$this->id}");
     }
+
     public function continue(): void
     {
         $currentTest = $this->tests
@@ -220,17 +219,16 @@ class Project extends Model implements HasMedia
 
         $this->update(['status' => ProjectStatusEnum::PROCESSING]);
 
-
         activity()
-          ->event('continued')
-          ->useLog('projects')
-          ->performedOn($this)
-          ->causedBy(Auth::user())
+            ->event('continued')
+            ->useLog('projects')
+            ->performedOn($this)
+            ->causedBy(Auth::user())
             ->log(
-                " آزمایش "
-                . "توسط "
-                . $this->user->name
-                . " ادامه داده شد. "
+                ' آزمایش '
+                .'توسط '
+                .$this->user->name
+                .' ادامه داده شد. '
             );
 
         redirect("/admin/projects/{$this->id}");

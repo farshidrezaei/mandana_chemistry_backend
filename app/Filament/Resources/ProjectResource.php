@@ -4,35 +4,35 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProjectResource\Actions\Bulk\ContinueAction;
 use App\Filament\Resources\ProjectResource\Actions\Bulk\PauseAction;
+use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers\NotesRelationManager;
+use App\Filament\Resources\ProjectResource\RelationManagers\TestsRelationManager;
 use App\Models\Note;
+use App\Models\Product;
 use App\Models\Project;
 use App\Models\User;
 use App\Tables\Columns\NewCountDownColumn;
 use Ariaieboy\FilamentJalaliDatetimepicker\Forms\Components\JalaliDatePicker;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Get;
-use App\Models\Product;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Resource;
 use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Filament\Infolists\Infolist;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Tables\Columns\IconColumn;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\Placeholder;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Components\IconEntry;
-use App\Filament\Resources\ProjectResource\Pages;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use App\Filament\Resources\ProjectResource\RelationManagers\TestsRelationManager;
 use JaOcero\ActivityTimeline\Components\ActivityDate;
 use JaOcero\ActivityTimeline\Components\ActivityDescription;
 use JaOcero\ActivityTimeline\Components\ActivityIcon;
@@ -50,9 +50,8 @@ class ProjectResource extends Resource implements HasShieldPermissions
         /** @var Project|string $model */
         $model = static::getModel();
 
-        return $model::query()->count();
+        return $model::query()->whereNotNull('started_at')->whereNull('finished_at')->count();
     }
-
 
     public static function getPermissionPrefixes(): array
     {
@@ -89,12 +88,11 @@ class ProjectResource extends Resource implements HasShieldPermissions
                 TextEntry::make('user.name')
                     ->label('نام کارمند'),
 
-
                 TextEntry::make('started_at')->label('شروع پروژه')->jalaliDate(),
 
                 TextEntry::make('id')->label('تمدید شده')
                     ->formatStateUsing(
-                        fn (Model $record) => ($record->tests->sum('projectTest.renewals_duration') . "  دقیقه ")
+                        fn (Model $record) => ($record->tests->sum('projectTest.renewals_duration').'  دقیقه ')
                     ),
 
                 TextEntry::make('product_id')->label('پایان تخمینی')
@@ -116,6 +114,7 @@ class ProjectResource extends Resource implements HasShieldPermissions
                             if ($record->isPaused()) {
                                 return 'heroicon-o-pause-circle';
                             }
+
                             return $record->finished_at
                                  ? ($record->is_mismatched ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle')
                                  : 'heroicon-o-play-circle';
@@ -126,7 +125,8 @@ class ProjectResource extends Resource implements HasShieldPermissions
                             if ($record->isPaused()) {
                                 return 'warning';
                             }
-                            return  $record->finished_at
+
+                            return $record->finished_at
                                   ? ($record->is_mismatched ? 'danger' : 'success')
                                   : 'info';
                         }
@@ -136,20 +136,20 @@ class ProjectResource extends Resource implements HasShieldPermissions
                     //->description('These are the activities that have been recorded.')
                     ->schema([
                         ActivityTitle::make('description')
+                            ->getStateUsing(fn ($record) => "<b>$record->description</b>(<i>{$record->causer->name}</i>)")
                             ->allowHtml(),
-                        // Be aware that you will need to ensure that the HTML is safe to render, otherwise your application will be vulnerable to XSS attacks.
                         ActivityDate::make('created_at')
                             ->getStateUsing(fn ($record) => verta($record->created_at)->format(' H:i:s Y/m/d '))
                             ->date('Y/m/d H:i:s', 'Asia/Tehran'),
                         ActivityIcon::make('status')
-                            ->icon(fn (string|null $state): string|null => match ($state) {
+                            ->icon(fn (?string $state): ?string => match ($state) {
                                 'ideation' => 'heroicon-m-light-bulb',
                                 'drafting' => 'heroicon-m-bolt',
                                 'reviewing' => 'heroicon-m-document-magnifying-glass',
                                 'published' => 'heroicon-m-rocket-launch',
                                 default => 'heroicon-m-bolt',
                             })
-                            ->color(fn (string|null $state): string|null => match ($state) {
+                            ->color(fn (?string $state): ?string => match ($state) {
                                 'ideation' => 'purple',
                                 'drafting' => 'info',
                                 'reviewing' => 'warning',
@@ -166,34 +166,32 @@ class ProjectResource extends Resource implements HasShieldPermissions
                 ActivitySection::make('notes')
                     ->label('نوت‌ها')
                     ->schema([
-                            ActivityTitle::make('body')
-                                ->label('متن')
-                                ->allowHtml(),
-                            // Be aware that you will need to ensure that the HTML is safe to render, otherwise your application will be vulnerable to XSS attacks.
-                            ActivityDescription::make('attachment')
-                                ->allowHtml()
-                                ->getStateUsing(
-                                    fn (Note $record) => $record->attachment ? "<a href='" . \Storage::url($record->attachment) . "' style='color:rgb(192, 132, 252) ' target='_blank'>پیوست</a>" : ""
-                                )
-
-                    ->placeholder(""),
-                ActivityDate::make('created_at')
-                    ->getStateUsing(fn ($record) => verta($record->created_at)->format(' H:i:s Y/m/d '))
-                    ->date('Y/m/d H:i:s', 'Asia/Tehran'),
-                ActivityIcon::make('status')
-                    ->icon('heroicon-m-document')
-                    ->color('info'),
-            ])
-            ->columnSpanFull()
-            ->showItemsCount(20)
-            ->showItemsLabel('View Old')
-            ->showItemsIcon('heroicon-m-chevron-down')
-            ->showItemsColor('gray')
-            ->headingVisible()
+                        ActivityTitle::make('body')
+                            ->label('متن')
+                            ->allowHtml(),
+                        // Be aware that you will need to ensure that the HTML is safe to render, otherwise your application will be vulnerable to XSS attacks.
+                        ActivityDescription::make('attachment')
+                            ->allowHtml()
+                            ->getStateUsing(
+                                fn (Note $record) => $record->attachment ? "<a href='".\Storage::url($record->attachment)."' style='color:rgb(192, 132, 252) ' target='_blank'>پیوست</a>" : ''
+                            )
+                            ->placeholder(''),
+                        ActivityDate::make('created_at')
+                            ->getStateUsing(fn ($record) => verta($record->created_at)->format(' H:i:s Y/m/d '))
+                            ->date('Y/m/d H:i:s', 'Asia/Tehran'),
+                        ActivityIcon::make('status')
+                            ->icon('heroicon-m-document')
+                            ->color('info'),
+                    ])
+                    ->columnSpanFull()
+                    ->showItemsCount(20)
+                    ->showItemsLabel('View Old')
+                    ->showItemsIcon('heroicon-m-chevron-down')
+                    ->showItemsColor('gray')
+                    ->headingVisible(),
             ])
             ->columns(3);
     }
-
 
     public static function form(Form $form): Form
     {
@@ -222,23 +220,23 @@ class ProjectResource extends Resource implements HasShieldPermissions
                     ->options([
                         10 => 10,
                         15 => 15,
-                        20 => 20
+                        20 => 20,
                     ])
                     ->required()
                     ->default(10)
                     ->label('وقت اضافه')->native(false),
-
 
                 Grid::make(1)
                     ->schema(function (Get $get): array {
                         $product = Product::with('tests')->find($get('product_id'));
                         $duration = $product?->tests->sum('duration') ?? 0;
                         $count = $product?->tests->count() ?? 0;
+
                         return $product ? [
                             Placeholder::make('employee_number')
                                 ->label('')->content(
-                                    "در کل $count آزمایش " . " در {$duration} دقیقه "
-                                )
+                                    "در کل $count آزمایش "." در {$duration} دقیقه "
+                                ),
                         ] : [];
                     })
                     ->key('dynamicTypeFields'),
@@ -262,7 +260,7 @@ class ProjectResource extends Resource implements HasShieldPermissions
 
                 TextColumn::make('id')->label('تمدید شده')
                     ->formatStateUsing(
-                        fn (Model $record) => ($record->tests->sum('projectTest.renewals_duration')) . " دقیقه "
+                        fn (Model $record) => ($record->tests->sum('projectTest.renewals_duration')).' دقیقه '
                     ),
 
                 TextColumn::make('product_id')->label('پایان تخمینی')
@@ -280,7 +278,6 @@ class ProjectResource extends Resource implements HasShieldPermissions
                 TextColumn::make('notes_count')->label('نوت‌ها')->counts('notes')
                     ->badge(),
 
-
                 NewCountDownColumn::make('user_id')
                     ->label('زمان باقی مانده')
                     ->formatStateUsing(function (Project $record): ?int {
@@ -288,7 +285,7 @@ class ProjectResource extends Resource implements HasShieldPermissions
                             return null;
                         }
 
-                        return (int)now()->diffInSeconds($record->getFinishesAt());
+                        return (int) now()->diffInSeconds($record->getFinishesAt());
                     }),
                 TextColumn::make('finished_at')->label('زمان پایان')->jalaliDate(),
                 IconColumn::make('updated_at')
@@ -298,6 +295,7 @@ class ProjectResource extends Resource implements HasShieldPermissions
                             if ($record->isPaused()) {
                                 return 'heroicon-o-pause-circle';
                             }
+
                             return $record->finished_at
                                 ? ($record->is_mismatched ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle')
                                 : 'heroicon-o-play-circle';
@@ -308,7 +306,8 @@ class ProjectResource extends Resource implements HasShieldPermissions
                             if ($record->isPaused()) {
                                 return 'warning';
                             }
-                            return  $record->finished_at
+
+                            return $record->finished_at
                                 ? ($record->is_mismatched ? 'danger' : 'success')
                                 : 'info';
                         }
@@ -331,7 +330,7 @@ class ProjectResource extends Resource implements HasShieldPermissions
                                 fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                             );
                     }),
-                  SelectFilter::make('product_id')
+                SelectFilter::make('product_id')
                     ->searchable()
                     ->multiple()
                     ->preload()
@@ -356,15 +355,15 @@ class ProjectResource extends Resource implements HasShieldPermissions
             ])
             ->actions([
 
-//                Tables\Actions\ViewAction::make(),
-//                Tables\Actions\EditAction::make(),
+                //                Tables\Actions\ViewAction::make(),
+                //                Tables\Actions\EditAction::make(),
 
             ])
             ->bulkActions([
-//                BulkActionGroup::make([
-                    ContinueAction::make('bulk-continue'),
-                    PauseAction::make('bulk-pause')
-//                ]),
+                //                BulkActionGroup::make([
+                ContinueAction::make('bulk-continue'),
+                PauseAction::make('bulk-pause'),
+                //                ]),
             ]);
         //  ->poll(60);
     }
@@ -373,14 +372,14 @@ class ProjectResource extends Resource implements HasShieldPermissions
     {
         return [
             TestsRelationManager::class,
-//            NotesRelationManager::class
+            //            NotesRelationManager::class
         ];
     }
 
     public static function getPages(): array
     {
         return [
-//            'index' => Pages\ManageProjects::route('/'),
+            //            'index' => Pages\ManageProjects::route('/'),
             'index' => Pages\ListProjects::route('/'),
             'create' => Pages\CreateProject::route('/create'),
             'view' => Pages\ViewProject::route('/{record}'),

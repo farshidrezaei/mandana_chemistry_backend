@@ -60,7 +60,7 @@ class EditProfile extends SimplePage
     /**
      * @return string | array<string>
      */
-    public static function getRouteMiddleware(Panel $panel): string | array
+    public static function getRouteMiddleware(Panel $panel): string|array
     {
         return [
             ...(static::isEmailVerificationRequired($panel) ? [static::getEmailVerifiedMiddleware($panel)] : []),
@@ -73,7 +73,7 @@ class EditProfile extends SimplePage
         $this->fillForm();
     }
 
-    public function getUser(): Authenticatable & Model
+    public function getUser(): Authenticatable&Model
     {
         $user = Filament::auth()->user();
 
@@ -137,7 +137,7 @@ class EditProfile extends SimplePage
 
         if (request()->hasSession() && array_key_exists('password', $data)) {
             request()->session()->put([
-                'password_hash_' . Filament::getAuthGuard() => $data['password'],
+                'password_hash_'.Filament::getAuthGuard() => $data['password'],
             ]);
         }
 
@@ -198,7 +198,6 @@ class EditProfile extends SimplePage
         return TextInput::make('email')
             ->label(__('filament-panels::pages/auth/edit-profile.form.email.label'))
             ->email()
-            ->required()
             ->maxLength(255)
             ->unique(ignoreRecord: true);
     }
@@ -281,12 +280,12 @@ class EditProfile extends SimplePage
         return false;
     }
 
-    public function getFormActionsAlignment(): string | Alignment
+    public function getFormActionsAlignment(): string|Alignment
     {
         return Alignment::Start;
     }
 
-    public function getTitle(): string | Htmlable
+    public function getTitle(): string|Htmlable
     {
         return static::getLabel();
     }

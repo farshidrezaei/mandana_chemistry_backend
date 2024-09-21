@@ -6,7 +6,6 @@ use App\Models\Project;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
-
 use Illuminate\Support\Facades\Auth;
 
 class AddNoteAction extends Action
@@ -27,7 +26,7 @@ class AddNoteAction extends Action
                             'nullable',
                             'file',
                             'mimes:jpg,jpeg,png,gif,pdf',
-                            'max:5100'
+                            'max:5100',
                         ])
                         ->label('پیوست')->directory('notes-attachments'),
                 ]

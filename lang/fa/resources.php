@@ -2,23 +2,28 @@
 
 return [
     'user' => [
-        'title' => "کاربر",
-        'plural' => "کاربرها",
+        'title' => 'کاربر',
+        'plural' => 'کاربرها',
         'group' => '',
     ],
     'test' => [
-        'title' => "آزمایش",
-        'plural' => "آزمایش‌ها",
+        'title' => 'آزمایش',
+        'plural' => 'آزمایش‌ها',
         'group' => '',
     ],
     'product' => [
-        'title' => "محصول",
-        'plural' => "محصول‌ها",
+        'title' => 'محصول',
+        'plural' => 'محصول‌ها',
+        'group' => '',
+    ],
+    'notification' => [
+        'title' => 'اعلان',
+        'plural' => 'اعلان‌ها',
         'group' => '',
     ],
     'project' => [
-        'title' => "پروژه",
-        'plural' => "پروژه‌ها",
+        'title' => 'پروژه',
+        'plural' => 'پروژه‌ها',
         'group' => '',
         'filters' => [
             'tabs' => [
@@ -28,8 +33,8 @@ return [
                 'failed' => 'نامنطبق',
                 'paused' => 'متوقف شده',
                 'archived' => 'آرشیو شده',
-            ]
-        ]
+            ],
+        ],
     ],
 
 ];

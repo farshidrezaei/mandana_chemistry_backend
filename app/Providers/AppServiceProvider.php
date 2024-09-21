@@ -3,8 +3,9 @@
 namespace App\Providers;
 
 use App\Models\User;
-use Laravel\Pulse\Facades\Pulse;
+use Filament\Notifications\Livewire\DatabaseNotifications;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Pulse\Facades\Pulse;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,6 +14,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        DatabaseNotifications::macro('getNotificationsQuery', function () {
+            if (! $this->isPaginated()) {
+                /** @phpstan-ignore-next-line */
+                return $this->getNotificationsQuery()->get();
+            }
+
+            return $this->getNotificationsQuery()->simplePaginate(10, pageName: 'database-notifications-page');
+        });
         //
     }
 
@@ -28,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
                 'extra' => $user->email,
             ]);
         });
+
 
     }
 }

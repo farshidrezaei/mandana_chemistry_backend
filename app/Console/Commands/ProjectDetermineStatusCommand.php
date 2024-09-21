@@ -36,7 +36,7 @@ class ProjectDetermineStatusCommand extends Command
                 if ($test->projectTest->isExpired()) {
                     $test->projectTest->update([
                         'finished_at' => now(),
-                        'is_mismatched' => false
+                        'is_mismatched' => false,
                     ]);
 
                     $unFinishedTests = $project
@@ -51,7 +51,7 @@ class ProjectDetermineStatusCommand extends Command
                         $nextTest->projectTest
                             ->update([
                                 'started_at' => now(),
-                                'is_mismatched' => false
+                                'is_mismatched' => false,
                             ]);
                         activity()
                             ->event('next-step')
@@ -65,7 +65,7 @@ class ProjectDetermineStatusCommand extends Command
                             ->useLog('projects')
                             ->performedOn($project)
                             ->causedBy(Auth::user())
-                            ->log(" آزمایش تمام تمام شد. ");
+                            ->log(' آزمایش تمام تمام شد. ');
                     }
                 } else {
                     $this->notifyOwner($test);
@@ -74,8 +74,6 @@ class ProjectDetermineStatusCommand extends Command
         }
     }
 
-
-
     private function notifyOwner(Test $test): void
     {
         $remaining = app(GeneralSettings::class)->beforeFinishAlertTime;
@@ -83,22 +81,22 @@ class ProjectDetermineStatusCommand extends Command
         $project = $test->projectTest->project;
         if (
             $project->user->can('can_notify_as_lab_user')
-            && (!$test->projectTest->has_been_notified)
-            && (int)now()->diffInSeconds(
+            && (! $test->projectTest->has_been_notified)
+            && (int) now()->diffInSeconds(
                 $test->projectTest
                     ->getFinishesAt()
                     ->subSeconds($remaining * 60)
             ) === 0
         ) {
             $title = "مرحله «{$test->title}» آزمایش محصول «{$project->product->title}» تا «{$remaining}» دقیقه دیگر به پایان می‌رسد";
-            $body = "";
+            $body = '';
             Notification::make()
                 ->title($title)
                 ->body($body)
                 ->actions([
                     Action::make('showNotifications')->label('مشاهده پروژه')
                         ->button()
-                        ->url("/admin/projects/$project->id")
+                        ->url("/admin/projects/$project->id"),
                 ])
                 ->sendToDatabase([$project->user]);
 
@@ -106,12 +104,12 @@ class ProjectDetermineStatusCommand extends Command
                 ->title($title)
                 ->body($body)
                 ->actions([
-                    Action::make('showNotifications')->label('مشاهده پیغام‌ها')
+                    /*Action::make('showNotifications')->label('مشاهده پیغام‌ها')
                         ->button()
-                        ->dispatch('open-modal', ['id' => 'database-notifications']),
+                        ->dispatch('open-modal', ['id' => 'database-notifications']),*/
                     Action::make('showNotifications')->label('مشاهده پروژه')
                         ->button()
-                        ->url("/admin/projects/$project->id")
+                        ->url("/admin/projects/$project->id"),
 
                 ])
                 ->broadcast([$project->user]);

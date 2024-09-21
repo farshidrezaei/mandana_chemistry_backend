@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Project;
 use App\Models\User;
 use Ariaieboy\FilamentJalaliDatetimepicker\Forms\Components\JalaliDatePicker;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Filament\Forms\Components\Select;
@@ -14,8 +15,9 @@ use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class ProjectsChart extends ApexChartWidget
 {
-    protected static ?string $chartId = 'projectsChart';
+    use HasWidgetShield;
 
+    protected static ?string $chartId = 'projectsChart';
 
     protected static ?string $heading = 'نمودار پروژه‌ها';
 
@@ -24,15 +26,14 @@ class ProjectsChart extends ApexChartWidget
     protected int|string|array $columnSpan = 'full';
 
     protected static ?string $loadingIndicator = 'درحال آماده‌سازی...';
+
     /**
      * Chart options (series, labels, types, size, animations...)
      * https://apexcharts.com/docs/options
-     *
-     * @return array
      */
     protected function getOptions(): array
     {
-        if (!$this->readyToLoad) {
+        if (! $this->readyToLoad) {
             return [];
         }
 
@@ -43,12 +44,11 @@ class ProjectsChart extends ApexChartWidget
             ? Carbon::parse($this->filterFormData['created_until'])->endOfDay()
             : today()->endOfDay();
 
-
         $productIds = $this->filterFormData['product_ids'] ?? [];
         $userIds = $this->filterFormData['user_ids'] ?? [];
         $types = $this->filterFormData['types'] ?? [];
 
-        $diff = (int)$createdFrom->diffInDays($createdUntil);
+        $diff = (int) $createdFrom->diffInDays($createdUntil);
 
         if ($diff > 0 && $diff <= 30) {
             $period = 'day';
@@ -61,9 +61,8 @@ class ProjectsChart extends ApexChartWidget
         $dates = [];
         $interval = CarbonPeriod::create($createdFrom, "1 $period", $createdUntil);
 
-
         foreach ($interval as $date) {
-            $dates[ match ($period) {
+            $dates[match ($period) {
                 'day' => verta($date)->format('d M'),
                 'month' => verta($date)->format('Y M'),
                 'year' => verta($date)->format('Y'),
@@ -104,7 +103,6 @@ class ProjectsChart extends ApexChartWidget
             $dates[$key] = $groups[$key] ?? null;
         }
 
-
         $groups = collect($dates);
 
         $keys = $groups->keys()->toArray();
@@ -113,12 +111,12 @@ class ProjectsChart extends ApexChartWidget
             'not_mismatched' => [
                 'name' => 'منطبق',
                 'data' => [],
-                'legend' => ['fontFamily' => 'Yekan Bakh FaNum']
+                'legend' => ['fontFamily' => 'Yekan Bakh FaNum'],
             ],
             'mismatched' => [
                 'name' => 'نامنطبق',
                 'data' => [],
-                'legend' => ['fontFamily' => 'Yekan Bakh FaNum']
+                'legend' => ['fontFamily' => 'Yekan Bakh FaNum'],
             ],
         ];
         foreach ($groups as $key => $projects) {
@@ -134,6 +132,7 @@ class ProjectsChart extends ApexChartWidget
         }
 
         sleep(2);
+
         return [
             'chart' => [
                 'type' => 'bar',
@@ -141,9 +140,9 @@ class ProjectsChart extends ApexChartWidget
                 'fontFamily' => 'Yekan Bakh FaNum',
             ],
             'tooltip' => [
-        'shared' => true,
-          'intersect' => false
-        ],
+                'shared' => true,
+                'intersect' => false,
+            ],
             'legend' => [
                 'fontFamily' => 'Yekan Bakh FaNum',
             ],
@@ -169,7 +168,7 @@ class ProjectsChart extends ApexChartWidget
                     ],
                 ],
             ],
-            'colors' => ['#BB5EF8','#6A6A6A'],
+            'colors' => ['#BB5EF8', '#6A6A6A'],
             'plotOptions' => [
                 'bar' => [
                     'borderRadius' => 3,

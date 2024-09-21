@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\ProjectResource\Actions;
 
 use App\Models\Project;
+use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
-use Filament\Actions\Action;
 use Illuminate\Support\Facades\Auth;
 
 class SetFailedAction extends Action
@@ -25,7 +25,7 @@ class SetFailedAction extends Action
                             'nullable',
                             'file',
                             'mimes:jpg,jpeg,png,gif,pdf',
-                            'max:5100'
+                            'max:5100',
                         ])
                         ->label('پیوست')
                         ->directory('notes-attachments'),
@@ -33,12 +33,14 @@ class SetFailedAction extends Action
             )
             ->icon('heroicon-o-x-circle')
             ->color('danger')
-            ->action(fn (Project $record, array $data) => $record->setFailed($data))
+            ->action(function (Project $record, array $data) {
+                $record->setFailed();
+                $record->addNote($data['body'], $data['attachment']);
+            })
             ->requiresConfirmation()
             ->hidden(
-                fn (Project $record): bool =>
-                    !Auth::user()->can('set_failed_project_test_project')
-                    || !$record->isStarted()
+                fn (Project $record): bool => ! Auth::user()->can('set_failed_project_test_project')
+                    || ! $record->isStarted()
                     || $record->isFinished()
             );
     }

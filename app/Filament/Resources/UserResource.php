@@ -2,26 +2,26 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
+use Awcodes\FilamentGravatar\Gravatar;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Tables\Table;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
-use Filament\Forms\Components\Select;
-use Awcodes\FilamentGravatar\Gravatar;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ViewAction;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Validation\Rules\Password;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Infolists\Components\ImageEntry;
-use App\Filament\Resources\UserResource\Pages;
-use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Validation\Rules\Password;
 use Phpsa\FilamentPasswordReveal\Password as PasswordInput;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
 class UserResource extends Resource implements HasShieldPermissions
 {
@@ -60,7 +60,7 @@ class UserResource extends Resource implements HasShieldPermissions
                 TextEntry::make('email'),
                 TextEntry::make('username'),
                 TextEntry::make('created_at')->jalaliDate(),
-                RepeatableEntry::make('roles')->schema([TextEntry::make('name')])
+                RepeatableEntry::make('roles')->schema([TextEntry::make('name')]),
             ]);
     }
 
@@ -69,14 +69,15 @@ class UserResource extends Resource implements HasShieldPermissions
         return $form
             ->schema([
                 TextInput::make('name')->label('نام')->required()->minLength(1)->string(),
-                TextInput::make('email')->label('ایمیل')->required()->unique(ignoreRecord: true)->email()->nullable(),
+                TextInput::make('email')->label('ایمیل')->unique(ignoreRecord: true)->email()->nullable(),
                 TextInput::make('username')->label('نام کاربری')->required()->alphaDash()->unique(ignoreRecord: true),
                 PasswordInput::make('password')->label('رمز عبور')->password()->rules([
-                    Password::min(8)
-                ])->required($form->getOperation() === "create")->dehydrated(fn ($state) => filled($state)),
+                    Password::min(8),
+                ])->required($form->getOperation() === 'create')->dehydrated(fn ($state) => filled($state)),
                 Select::make('roles')
-                    ->preload()->native(false)
-                    ->label('نقش‌ها')->searchable()->multiple()->relationship('roles', 'name')->nullable()
+                    ->preload()
+                    ->native(false)
+                    ->label('نقش‌ها')->searchable()->relationship('roles', 'name')->nullable(),
             ]);
     }
 
@@ -86,8 +87,8 @@ class UserResource extends Resource implements HasShieldPermissions
             ->striped()
             ->columns([
                 TextColumn::make('id')->label('#')->searchable(),
-                TextColumn::make('name'),
-                TextColumn::make('roles.name')->badge(),
+                TextColumn::make('name')->searchable(),
+                TextColumn::make('roles.name')->badge()->searchable(),
                 TextColumn::make('email'),
                 TextColumn::make('username'),
                 TextColumn::make('created_at')->jalaliDate(),

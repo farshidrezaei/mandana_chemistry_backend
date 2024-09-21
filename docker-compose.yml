@@ -1,16 +1,17 @@
-version: "3.8"
-
 services:
-  php:
-    tty: true
-    restart: always
-    build: .
-    ports:
-      - "${SERVE_PORT}:8000"
-      - "8080:8080"
-    container_name: mandana_chemistry-backend
-    networks:
-        - mandana_chemistry-network
+    php:
+        tty: true
+        restart: always
+        build: .
+        ports:
+            - "${SERVE_PORT}:8000"
+            - "8080:8080"
+        container_name: mandana_chemistry-backend
+        volumes:
+            - ./storage/app:/var/www/html/storage/app
+            - ./storage/logs:/var/www/html/storage/logs
+#        networks:
+#            - mandana_chemistry-network
 networks:
     mandana_chemistry-network:
         driver: bridge

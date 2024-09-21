@@ -30,7 +30,7 @@ class RenewalAction extends Action
                         ->danger()
                         ->send();
                 } else {
-                    if (!$record->projectTest->isAbleToRenewal()) {
+                    if (! $record->projectTest->isAbleToRenewal()) {
                         if (Auth::user()->can('renewal_project_test_project')) {
                             $this->doRenewal($record, $data, true);
                         } else {
@@ -49,7 +49,7 @@ class RenewalAction extends Action
 
     private function doRenewal(Test $test, array $data, bool $force = false): void
     {
-        DB::transaction(function () use ($test, $data) {
+        DB::transaction(function () use ($test) {
             $test->projectTest->renewal();
         });
         activity()
@@ -58,10 +58,11 @@ class RenewalAction extends Action
             ->performedOn($test->projectTest->project)
             ->causedBy(Auth::user())
             ->log(" آزمایش  $test->title "
-                ." توسط "
+                .' توسط '
                 .$test->projectTest->project->user->name
-      .  " تمدید شد "
-            .($force ? "و باعث افزایش زمان پروژه شد." : "."));
+      .' تمدید شد '
+            .($force ? 'و باعث افزایش زمان پروژه شد.' : '.').
+            'دلیل: '.$data['body']);
         Notification::make()
             ->title('تمدید با موفقیت انجام شد')
             ->success()

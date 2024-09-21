@@ -3,11 +3,12 @@
 namespace App\Filament\Resources\ProjectResource\Pages;
 
 use App\Enums\ProjectStatusEnum;
-use Filament\Resources\Components\Tab;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ProjectResource;
 use Filament\Actions;
+use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class ListProjects extends ListRecords
 {
@@ -22,42 +23,64 @@ class ListProjects extends ListRecords
 
     public function getTabs(): array
     {
+        $user = Auth::user();
+
         return [
             trans('resources.project.filters.tabs.testing') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->withoutTrashed()
+                ->modifyQueryUsing(fn (Builder $query) => $query->when(
+                    ! ($user->isAdmin() || $user->isSuperAdmin()),
+                    fn (Builder $q) => $q->where('user_id', $user->id)
+                )
+                    ->withoutTrashed()
                     ->where(
                         fn (Builder $query) => $query
-                        ->where('status', '!=', ProjectStatusEnum::PAUSED)
-                        ->orWhereNull('status')
+                            ->where('status', '!=', ProjectStatusEnum::PAUSED)
+                            ->orWhereNull('status')
                     )
                     ->whereNull('finished_at')),
 
             trans('resources.project.filters.tabs.done') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->withoutTrashed()
+                ->modifyQueryUsing(fn (Builder $query) => $query->when(
+                    ! ($user->isAdmin() || $user->isSuperAdmin()),
+                    fn (Builder $q) => $q->where('user_id', $user->id)
+                )
+                    ->withoutTrashed()
                     ->where(
                         fn (Builder $query) => $query
-                        ->where('status', '!=', ProjectStatusEnum::PAUSED)
-                        ->orWhereNull('status')
+                            ->where('status', '!=', ProjectStatusEnum::PAUSED)
+                            ->orWhereNull('status')
                     )
                     ->whereNotNull('finished_at')
                     ->where('is_mismatched', false)),
 
             trans('resources.project.filters.tabs.failed') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->withoutTrashed()
+                ->modifyQueryUsing(fn (Builder $query) => $query->when(
+                    ! ($user->isAdmin() || $user->isSuperAdmin()),
+                    fn (Builder $q) => $q->where('user_id', $user->id)
+                )
+                    ->withoutTrashed()
                     ->where(
                         fn (Builder $query) => $query
-                        ->where('status', '!=', ProjectStatusEnum::PAUSED)
-                        ->orWhereNull('status')
+                            ->where('status', '!=', ProjectStatusEnum::PAUSED)
+                            ->orWhereNull('status')
                     )
                     ->whereNotNull('finished_at')
                     ->where('is_mismatched', true)),
 
             trans('resources.project.filters.tabs.paused') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->withoutTrashed()
+                ->modifyQueryUsing(fn (Builder $query) => $query->when(
+                    ! ($user->isAdmin() || $user->isSuperAdmin()),
+                    fn (Builder $q) => $q->where('user_id', $user->id)
+                )
+                    ->withoutTrashed()
                     ->where('status', ProjectStatusEnum::PAUSED)),
 
             trans('resources.project.filters.tabs.archived') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->onlyTrashed()),
+                ->modifyQueryUsing(fn (Builder $query) => $query->when(
+                    ! ($user->isAdmin() || $user->isSuperAdmin()),
+                    fn (Builder $q) => $q->where('user_id', $user->id)
+                )
+                    ->onlyTrashed()),
         ];
     }
 }
