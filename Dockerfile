@@ -49,9 +49,6 @@ RUN composer install
 RUN php artisan key:generate
 RUN php artisan storage:link
 
-# Setup cron job
-COPY docker/cron /etc/cron.d/crontab
-
 RUN chmod +x /app/docker/start.sh
 
 CMD ["chmod", "+x", "./docker/start.sh"]
