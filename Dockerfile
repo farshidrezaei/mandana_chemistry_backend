@@ -42,7 +42,6 @@ RUN crontab /etc/cron.d/crontab
 RUN chown laravel:laravel /var/www/html/docker/start.sh
 RUN chmod +x /var/www/html/docker/start.sh
 
-USER laravel
 
 RUN chown -R laravel:laravel /var/www/html/storage
 RUN chmod -R 775 /var/www/html/storage
