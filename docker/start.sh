@@ -2,6 +2,5 @@
 
 cron -f &
 
-/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisor.conf -n &
+/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisor.conf
 
-php artisan octane:frankenphp --host=0.0.0.0

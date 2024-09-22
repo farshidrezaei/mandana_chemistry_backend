@@ -40,7 +40,6 @@ WORKDIR /app
 # Setup Supervisor
 RUN mkdir -p /etc/supervisor/conf.d
 COPY docker/supervisor.conf /etc/supervisor/conf.d/supervisor.conf
-RUN chmod 0644 /etc/supervisor/conf.d/supervisor.conf
 
 # Get latest Composer
 COPY --from=composer:2.5.8 /usr/bin/composer /usr/bin/composer
@@ -52,13 +51,8 @@ RUN php artisan storage:link
 
 # Setup cron job
 COPY docker/cron /etc/cron.d/crontab
-RUN chmod 0644 /etc/cron.d/crontab
-RUN crontab /etc/cron.d/crontab
-
 
 RUN chmod +x /app/docker/start.sh
-
-RUN chmod -R 775 /app/storage
 
 CMD ["chmod", "+x", "./docker/start.sh"]
 # Use ENTRYPOINT for the startup script
