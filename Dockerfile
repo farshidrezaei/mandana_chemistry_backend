@@ -44,8 +44,8 @@ RUN chmod +x /var/www/html/docker/start.sh
 
 USER laravel
 
-RUN chown laravel:laravel /var/www/html/storage
-RUN chmod +R 775 /var/www/html/storage
+RUN chown -R laravel:laravel /var/www/html/storage
+RUN chmod -R 775 /var/www/html/storage
 
 CMD ["chmod", "+x", "./docker/start.sh"]
 
