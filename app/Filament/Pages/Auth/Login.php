@@ -43,7 +43,7 @@ class Login extends \Filament\Pages\Auth\Login
 
         $data = $this->form->getState();
 
-        if (!Filament::auth()->attempt($this->getCredentialsFromFormData($data), $data['remember'] ?? false)) {
+        if (! Filament::auth()->attempt($this->getCredentialsFromFormData($data), $data['remember'] ?? false)) {
             $this->throwFailureValidationException();
         }
 
@@ -51,7 +51,7 @@ class Login extends \Filament\Pages\Auth\Login
 
         if (
             ($user instanceof FilamentUser) &&
-            (!$user->canAccessPanel(Filament::getCurrentPanel()))
+            (! $user->canAccessPanel(Filament::getCurrentPanel()))
         ) {
             Filament::auth()->logout();
 
@@ -70,7 +70,6 @@ class Login extends \Filament\Pages\Auth\Login
         ]);
     }
 
-
     protected function getEmailFormComponent(): Component
     {
         return TextInput::make('username')
@@ -83,21 +82,18 @@ class Login extends \Filament\Pages\Auth\Login
             ->extraInputAttributes(['tabindex' => 1]);
     }
 
-
     protected function getRememberFormComponent(): Component
     {
         return Checkbox::make('remember')
             ->label(__('filament-panels::pages/auth/login.form.remember.label'));
     }
 
-
-
-    public function getTitle(): string | Htmlable
+    public function getTitle(): string|Htmlable
     {
         return __('filament-panels::pages/auth/login.title');
     }
 
-    public function getHeading(): string | Htmlable
+    public function getHeading(): string|Htmlable
     {
         return __('filament-panels::pages/auth/login.heading');
     }
