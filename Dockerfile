@@ -39,7 +39,7 @@ WORKDIR /app
 
 # Setup Supervisor
 RUN mkdir -p /etc/supervisor/conf.d
-COPY docker/supervisor.conf /etc/supervisor/conf.d/supervisor.conf
+COPY ./supervisor.conf /etc/supervisor/conf.d/supervisor.conf
 
 # Get latest Composer
 COPY --from=composer:2.5.8 /usr/bin/composer /usr/bin/composer
@@ -49,8 +49,4 @@ RUN composer install
 RUN php artisan key:generate
 RUN php artisan storage:link
 
-RUN chmod +x /app/docker/start.sh
-
-CMD ["chmod", "+x", "./docker/start.sh"]
-# Use ENTRYPOINT for the startup script
-ENTRYPOINT ["/app/docker/start.sh"]
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisor.conf"]
