@@ -136,7 +136,7 @@ class ProjectResource extends Resource implements HasShieldPermissions
                     //->description('These are the activities that have been recorded.')
                     ->schema([
                         ActivityTitle::make('description')
-                            ->getStateUsing(fn ($record) => "<b>$record->description</b>(<i>{$record->causer->name}</i>)")
+                            ->getStateUsing(fn ($record) => "<b>$record->description</b>(<i>{$record->causer?->name}</i>)")
                             ->allowHtml(),
                         ActivityDate::make('created_at')
                             ->getStateUsing(fn ($record) => verta($record->created_at)->format(' H:i:s Y/m/d '))
