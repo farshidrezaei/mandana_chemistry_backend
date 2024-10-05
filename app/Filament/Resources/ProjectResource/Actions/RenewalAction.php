@@ -54,7 +54,7 @@ class RenewalAction extends Action
         DB::transaction(function () use ($test) {
             $test->projectTest->renewal();
         });
-        $this->notify($force);
+        $this->notify($test->projectTest->project, $data, $force);
         activity()
             ->event('renewal')
             ->useLog('projects')
@@ -75,7 +75,6 @@ class RenewalAction extends Action
 
     private function notify(Project $project, array $data, bool $force): void
     {
-        $causer = Auth::user();
 
         $users = User::role(['admin', 'Sale'])->get()->push($project->user);
 
