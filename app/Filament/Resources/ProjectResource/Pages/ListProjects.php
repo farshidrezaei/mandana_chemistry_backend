@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ProjectResource\Pages;
 
 use App\Enums\ProjectStatusEnum;
 use App\Filament\Resources\ProjectResource;
+use App\Filament\Resources\ProjectResource\Actions\PauseAllAction;
 use Filament\Actions;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
@@ -18,6 +19,7 @@ class ListProjects extends ListRecords
     {
         return [
             Actions\CreateAction::make()->icon('heroicon-o-plus'),
+            PauseAllAction::make('pause-all')->icon('heroicon-o-pause-circle'),
         ];
     }
 

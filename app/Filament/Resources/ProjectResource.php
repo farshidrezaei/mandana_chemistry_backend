@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProjectResource\Actions\Bulk\ContinueAction;
 use App\Filament\Resources\ProjectResource\Actions\Bulk\PauseAction;
+use App\Filament\Resources\ProjectResource\Actions\PauseAllAction;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers\NotesRelationManager;
 use App\Filament\Resources\ProjectResource\RelationManagers\TestsRelationManager;
@@ -70,9 +71,12 @@ class ProjectResource extends Resource implements HasShieldPermissions
             'force_delete_any',
             'set_done_project_test',
             'set_failed_project_test',
+            'force_set_done_project_test',
+            'force_set_failed_project_test',
             'renewal_project_test',
             'add_project_note',
             'pause_project',
+            'pause_all_project',
             'continue_project',
         ];
     }
@@ -354,7 +358,6 @@ class ProjectResource extends Resource implements HasShieldPermissions
                     ),
             ])
             ->actions([
-
                 //                Tables\Actions\ViewAction::make(),
                 //                Tables\Actions\EditAction::make(),
 

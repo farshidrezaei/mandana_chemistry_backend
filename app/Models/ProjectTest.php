@@ -95,7 +95,7 @@ class ProjectTest extends Pivot
 
     public function project(): BelongsTo
     {
-        return $this->belongsTo(Project::class);
+        return $this->belongsTo(Project::class)->withTrashed();
     }
 
     public function getStatusIcon(): string

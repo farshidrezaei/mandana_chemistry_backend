@@ -77,6 +77,11 @@ class Project extends Model implements HasMedia
         return $this->morphMany(ActivitylogServiceProvider::determineActivityModel(), 'subject');
     }
 
+    public function isAllTestsFinished(): bool
+    {
+        return $this->tests->whereNull('projectTest.finished_at')->isEmpty();
+    }
+
     public function getFinishesAt(): ?Carbon
     {
         if ($this->isPaused()) {
@@ -134,7 +139,7 @@ class Project extends Model implements HasMedia
         ]);
     }
 
-    private function determineStatus(bool $isMismatched): void
+    private function determineStatus(bool $isMismatched, bool $force = false): void
     {
         DB::transaction(function () use ($isMismatched) {
             $this->update([
@@ -167,14 +172,14 @@ class Project extends Model implements HasMedia
         redirect("/admin/projects/{$this->id}");
     }
 
-    public function setDone(): void
+    public function setDone(bool $force = false): void
     {
-        $this->determineStatus(false);
+        $this->determineStatus(false, $force);
     }
 
-    public function setFailed(): void
+    public function setFailed(bool $force = false): void
     {
-        $this->determineStatus(true);
+        $this->determineStatus(true, $force);
     }
 
     public function pause(string $reason): void
@@ -204,8 +209,6 @@ class Project extends Model implements HasMedia
                 .' متوقف شد و این علت برای آن ذکر شد: '
                 .$reason
             );
-
-        redirect("/admin/projects/{$this->id}");
     }
 
     public function continue(): void
@@ -232,5 +235,16 @@ class Project extends Model implements HasMedia
             );
 
         redirect("/admin/projects/{$this->id}");
+    }
+
+    public function calculateTimeBeforeNotify(): int
+    {
+        $length = $this->tests->sum('duration') + $this->tests->sum('projectTest.renewals_duration');
+        if ($length > 60) {
+            return 60;
+        }
+
+        return (int) ($length / 2);
+
     }
 }

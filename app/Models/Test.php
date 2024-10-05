@@ -27,7 +27,7 @@ class Test extends Model
 
     public function projects(): BelongsToMany
     {
-        return $this->belongsToMany(Project::class)->using(ProjectTest::class)->as('projectTest');
+        return $this->belongsToMany(Project::class)->using(ProjectTest::class)->as('projectTest')->withTrashed();
     }
 
 

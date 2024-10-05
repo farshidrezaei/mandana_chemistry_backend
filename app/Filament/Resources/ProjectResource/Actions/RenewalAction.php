@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\ProjectResource\Actions;
 
+use App\Models\Project;
 use App\Models\Test;
+use App\Models\User;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
@@ -52,6 +54,7 @@ class RenewalAction extends Action
         DB::transaction(function () use ($test) {
             $test->projectTest->renewal();
         });
+        $this->notify($force);
         activity()
             ->event('renewal')
             ->useLog('projects')
@@ -68,5 +71,45 @@ class RenewalAction extends Action
             ->success()
             ->send();
         redirect("/admin/projects/{$test->projectTest->project->id}");
+    }
+
+    private function notify(Project $project, array $data, bool $force): void
+    {
+        $causer = Auth::user();
+
+        $users = User::role(['admin', 'Sale'])->get()->push($project->user);
+
+        $title = $project->title ?? $project->product->title;
+
+        Notification::make()
+            ->title(" پروژه  $title "
+                .' توسط '
+                .Auth::user()->name
+                .' تمدید شد '
+                .($force ? 'و باعث افزایش زمان پروژه شد.' : '.')
+            )
+            ->body($data['body'])
+            ->actions([
+                \Filament\Notifications\Actions\Action::make('showNotifications')->label('مشاهده پروژه')
+                    ->button()
+                    ->url("/admin/projects/$project->id"),
+            ])
+            ->sendToDatabase($users);
+
+        Notification::make()
+            ->title(" پروژه  $title "
+                .' توسط '
+                .Auth::user()->name
+                .' تمدید شد '
+                .($force ? 'و باعث افزایش زمان پروژه شد.' : '.')
+            )
+            ->body($data['body'])
+            ->actions([
+                \Filament\Notifications\Actions\Action::make('showNotifications')->label('مشاهده پروژه')
+                    ->button()
+                    ->url("/admin/projects/$project->id"),
+
+            ])
+            ->broadcast($users);
     }
 }
