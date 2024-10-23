@@ -171,6 +171,7 @@ class ProjectResource extends Resource implements HasShieldPermissions
                     ->label('نوت‌ها')
                     ->schema([
                         ActivityTitle::make('body')
+                            ->getStateUsing(fn ($record) => "<b>$record->body</b>(<i>{$record->user?->name}</i>)")
                             ->label('متن')
                             ->allowHtml(),
                         // Be aware that you will need to ensure that the HTML is safe to render, otherwise your application will be vulnerable to XSS attacks.

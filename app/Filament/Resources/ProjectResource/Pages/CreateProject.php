@@ -18,9 +18,14 @@ class CreateProject extends CreateRecord
 
     protected function afterCreate(): void
     {
+
         /** @var Project $project */
         $project = $this->record;
 
+        if (is_null($project->title)) {
+            $project->update(['title' => $project->product->title]);
+        }
+Project::whereNull('title')->get();
         $tests = $project->product->tests;
 
         $tests->each(function (Test $test, int $index) use ($project) {
