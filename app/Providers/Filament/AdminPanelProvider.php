@@ -94,7 +94,7 @@ class AdminPanelProvider extends PanelProvider
 
                 GravatarPlugin::make()->default('mp')->size(200),
                 FilamentApexChartsPlugin::make(),
-                FilamentSpatieLaravelBackupPlugin::make()->usingQueue('backup'),
+                FilamentSpatieLaravelBackupPlugin::make()->usingPolingInterval('10s')->noTimeout()->usingQueue('backup'),
             ]);
     }
 

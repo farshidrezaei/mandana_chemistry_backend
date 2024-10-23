@@ -6,7 +6,6 @@ use App\Console\Commands\NotifyAboutProjects;
 use App\Console\Commands\ProjectDetermineStatusCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Spatie\Backup\Commands\BackupCommand;
 
 class Kernel extends ConsoleKernel
 {
@@ -24,10 +23,9 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->runInBackground();
 
-        $schedule->command(BackupCommand::class)
-            ->dailyAt('03:00')
-            ->withoutOverlapping()
-            ->runInBackground();
+        $schedule->command('backup:clean')->daily()->at('03:00');
+        $schedule->command('backup:run')->daily()->at('03:30');
+
     }
 
     /**

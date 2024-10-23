@@ -276,7 +276,7 @@ return [
 
     'cleanup' => [
         /*
-         * The strategy that will be used to cleanup old backups. The default strategy
+         * The strategy that will be used to clean up old backups. The default strategy
          * will keep all backups for a certain amount of days. After that period only
          * a daily backup will be kept. After that period only weekly backups will
          * be kept and so on.
