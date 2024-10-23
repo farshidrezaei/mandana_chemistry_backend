@@ -56,7 +56,7 @@ class CreateProject extends CreateRecord
         /** @var Project $project */
         $project = $this->record;
 
-        $users = User::role(['Sale'])->get()->push($project->user);
+        $users = User::role(['Sale'])->orWhereIn('id', [$project->user_id])->get();
 
         $title = $project->title ?? $project->product->title;
 

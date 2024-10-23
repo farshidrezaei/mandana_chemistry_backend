@@ -54,7 +54,7 @@ class SetDoneAction extends Action
     {
         $causer = Auth::user();
 
-        $users = User::role([ 'Sale'])->get();
+        $users = User::role(['Sale'])->get();
 
         $title = $project->title ?? $project->product->title;
 

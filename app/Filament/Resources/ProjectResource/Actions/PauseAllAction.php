@@ -44,8 +44,8 @@ class PauseAllAction extends Action
 
     private function notify(array $data): void
     {
-
-        $users = User::role(['admin', 'Sale', 'Lab'])->get()->push($user = Auth::user());
+        $user = Auth::user();
+        $users = User::role(['admin', 'Sale', 'Lab'])->orWhereIn('id', [$user->id])->get();
 
         Notification::make()
             ->title("تمام پروژه‌های درحال اجرای واحد آزمایشگاه توسط '{$user->name}' متوقف شدند.")

@@ -52,7 +52,7 @@ class ForceSetDoneAction extends Action
     {
         $causer = Auth::user();
 
-        $users = User::role(['admin', 'Sale'])->get()->push($project->user);
+        $users = User::role(['admin', 'Sale'])->orWhereIn('id', [$project->user_id])->get();
 
         $title = $project->title ?? $project->product->title;
 

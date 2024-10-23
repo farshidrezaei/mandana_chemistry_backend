@@ -28,6 +28,7 @@ class ArchiveAction extends Action
             ->action(function (Project $record, array $data) {
                 DB::transaction(function () use ($data, $record) {
                     $record->delete();
+                    $this->notify($record, $data);
                     activity()
                         ->event('archive')
                         ->useLog('projects')
@@ -55,14 +56,21 @@ class ArchiveAction extends Action
     private function notify(Project $project, array $data): void
     {
 
-        $users = User::permission('can_notify_as_sale_user')->role(['admin'])->get()->push($project->user);
+        $users = User::role(['Admin', 'Lab'])->role(['admin'])->orWhereIn('id', [$project->user_id])->get();
         if ($project->user->isNot(Auth::user())) {
             $users->push(Auth::id());
         }
         $title = $project->title ?? $project->product->title;
 
         Notification::make()
-            ->title("پروژه '{$title}' متوقف شد.")
+            ->title(
+
+                ' پروژه '
+                ." '{$title}'"
+                .'توسط '
+                .Auth::user()->name
+                .' آرشیو شد. '
+            )
             ->body($data['body'])
             ->actions([
                 \Filament\Notifications\Actions\Action::make('showNotifications')->label('مشاهده پروژه')
@@ -72,7 +80,13 @@ class ArchiveAction extends Action
             ->sendToDatabase($users);
 
         Notification::make()
-            ->title("پروژه '{$title}' متوقف شد.")
+            ->title(
+                ' پروژه '
+                ." '{$title}'"
+                .'توسط '
+                .Auth::user()->name
+                .' آرشیو شد. '
+            )
             ->body($data['body'])
             ->actions([
                 \Filament\Notifications\Actions\Action::make('showNotifications')->label('مشاهده پروژه')

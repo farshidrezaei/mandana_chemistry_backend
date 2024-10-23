@@ -42,7 +42,7 @@ class PauseAction extends Action
     private function notify(Project $project, array $data): void
     {
 
-        $users = User::role(['admin', 'Sale'])->get()->push($project->user);
+        $users = User::role(['admin', 'Sale'])->orWhereIn('id', [$project->user_id])->get();
         if ($project->user->isNot(Auth::user())) {
             $users->push(Auth::id());
         }

@@ -253,7 +253,7 @@ class ProjectResource extends Resource implements HasShieldPermissions
             ->striped()
             ->columns([
 
-                TextColumn::make('product.title')->searchable()
+                TextColumn::make('title')->searchable()
                     ->formatStateUsing(fn (Model $record): string => $record->title ?? $record->product->title)
                     ->label('نام پروژه'),
 

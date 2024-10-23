@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 
 class NotifyAboutProjects extends Command
 {
@@ -46,33 +47,38 @@ class NotifyAboutProjects extends Command
 
     public function notifyLogic(Project $project, Carbon $now): void
     {
-        $remaining = $project->calculateTimeBeforeNotify();
-        if (! is_null($project->getFinishesAt())) {
-            if (((int) $now->diffInMinutes($project->getFinishesAt()?->subMinutes($remaining))) === 0) {
-                $users = User::role(['Sale'])->get()->push($project->user);
-                $title = "آزمایش‌های محصول «{$project->product->title}» تا «{$remaining}» دقیقه دیگر به پایان می‌رسد.";
-                $body = '';
-                Notification::make()
-                    ->title($title)
-                    ->body($body)
-                    ->actions([
-                        Action::make('showNotifications')->label('مشاهده پروژه')
-                            ->button()
-                            ->url("/admin/projects/$project->id"),
-                    ])
-                    ->sendToDatabase($users);
 
-                Notification::make()
-                    ->title($title)
-                    ->body($body)
-                    ->actions([
-                        Action::make('showNotifications')->label('مشاهده پروژه')
-                            ->button()
-                            ->url("/admin/projects/$project->id"),
+        Cache::lock("notify_$project->id", 60)
+            ->block(60, function () use ($now, $project) {
+                $remaining = $project->calculateTimeBeforeNotify();
+                if (! is_null($project->getFinishesAt())) {
+                    if (((int) $now->diffInMinutes($project->getFinishesAt()?->subMinutes($remaining))) === 0) {
+                        $users = User::role(['Sale'])->orWhereIn('id', [$project->user_id])->get();
+                        $title = "آزمایش‌های محصول «{$project->product->title}» تا «{$remaining}» دقیقه دیگر به پایان می‌رسد.";
+                        $body = '';
+                        Notification::make()
+                            ->title($title)
+                            ->body($body)
+                            ->actions([
+                                Action::make('showNotifications')->label('مشاهده پروژه')
+                                    ->button()
+                                    ->url("/admin/projects/$project->id"),
+                            ])
+                            ->sendToDatabase($users);
 
-                    ])
-                    ->broadcast($users);
-            }
-        }
+                        Notification::make()
+                            ->title($title)
+                            ->body($body)
+                            ->actions([
+                                Action::make('showNotifications')->label('مشاهده پروژه')
+                                    ->button()
+                                    ->url("/admin/projects/$project->id"),
+
+                            ])
+                            ->broadcast($users);
+                    }
+                }
+            });
+
     }
 }

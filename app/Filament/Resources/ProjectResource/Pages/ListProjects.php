@@ -29,10 +29,7 @@ class ListProjects extends ListRecords
 
         return [
             trans('resources.project.filters.tabs.testing') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->when(
-                    ! ($user->isAdmin() || $user->isSuperAdmin()),
-                    fn (Builder $q) => $q->where('user_id', $user->id)
-                )
+                ->modifyQueryUsing(fn (Builder $query) => $query
                     ->withoutTrashed()
                     ->where(
                         fn (Builder $query) => $query
@@ -42,10 +39,7 @@ class ListProjects extends ListRecords
                     ->whereNull('finished_at')),
 
             trans('resources.project.filters.tabs.done') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->when(
-                    ! ($user->isAdmin() || $user->isSuperAdmin()),
-                    fn (Builder $q) => $q->where('user_id', $user->id)
-                )
+                ->modifyQueryUsing(fn (Builder $query) => $query
                     ->withoutTrashed()
                     ->where(
                         fn (Builder $query) => $query
@@ -56,10 +50,7 @@ class ListProjects extends ListRecords
                     ->where('is_mismatched', false)),
 
             trans('resources.project.filters.tabs.failed') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->when(
-                    ! ($user->isAdmin() || $user->isSuperAdmin()),
-                    fn (Builder $q) => $q->where('user_id', $user->id)
-                )
+                ->modifyQueryUsing(fn (Builder $query) => $query
                     ->withoutTrashed()
                     ->where(
                         fn (Builder $query) => $query
@@ -70,19 +61,12 @@ class ListProjects extends ListRecords
                     ->where('is_mismatched', true)),
 
             trans('resources.project.filters.tabs.paused') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->when(
-                    ! ($user->isAdmin() || $user->isSuperAdmin()),
-                    fn (Builder $q) => $q->where('user_id', $user->id)
-                )
+                ->modifyQueryUsing(fn (Builder $query) => $query
                     ->withoutTrashed()
                     ->where('status', ProjectStatusEnum::PAUSED)),
 
             trans('resources.project.filters.tabs.archived') => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->when(
-                    ! ($user->isAdmin() || $user->isSuperAdmin()),
-                    fn (Builder $q) => $q->where('user_id', $user->id)
-                )
-                    ->onlyTrashed()),
+                ->modifyQueryUsing(fn (Builder $query) => $query->onlyTrashed()),
         ];
     }
 }
