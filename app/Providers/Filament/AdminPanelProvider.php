@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
+use App\Filament\Pages\Backup;
 use App\Filament\Pages\Dashboard;
 use Awcodes\FilamentGravatar\GravatarPlugin;
 use Awcodes\FilamentGravatar\GravatarProvider;
@@ -94,7 +95,7 @@ class AdminPanelProvider extends PanelProvider
 
                 GravatarPlugin::make()->default('mp')->size(200),
                 FilamentApexChartsPlugin::make(),
-                FilamentSpatieLaravelBackupPlugin::make()->usingPolingInterval('10s')->noTimeout()->usingQueue('backup'),
+                FilamentSpatieLaravelBackupPlugin::make()->usingPolingInterval('10s')->noTimeout()->usingPage(Backup::class)->usingQueue('backup'),
             ]);
     }
 
