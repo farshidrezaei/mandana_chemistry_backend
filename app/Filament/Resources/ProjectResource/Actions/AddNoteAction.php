@@ -19,7 +19,7 @@ class AddNoteAction extends Action
             ->icon('heroicon-o-pencil-square')
             ->form(
                 fn () => [
-                    TextInput::make('body')->label('متن')->required()->maxLength(100),
+                    TextInput::make('body')->label('متن')->required()->maxLength(250),
                     FileUpload::make('attachment')
                         ->nullable()
                         ->rules([

@@ -21,7 +21,7 @@ class PauseAction extends Action
             ->icon('heroicon-o-pause-circle')
             ->form(
                 fn () => [
-                    TextInput::make('body')->label('متن')->required()->maxLength(100),
+                    TextInput::make('body')->label('متن')->required()->maxLength(250),
                 ]
             )
             ->action(function (Project $record, array $data) {
@@ -44,7 +44,7 @@ class PauseAction extends Action
 
         $users = User::role(['admin', 'Sale'])->orWhereIn('id', [$project->user_id])->get();
         if ($project->user->isNot(Auth::user())) {
-            $users->push(Auth::id());
+            $users->push(Auth::user());
         }
         $title = $project->title ?? $project->product->title;
 

@@ -11,6 +11,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -75,11 +76,23 @@ class NotificationResource extends Resource
                 TextColumn::make('updated_at')
                     ->formatStateUsing(fn (Model $record): string => $record->data['title'] ?? '')
                     ->label('عنوان'),
+                IconColumn::make('notifiable_id')
+                    ->label('وضعیت')
+                    ->icon(
+                        fn (DatabaseNotification $record): string => $record->read_at
+                            ? 'heroicon-o-check-circle'
+                            : '')
+                    ->color(fn (Model $record): string => $record->created_at->startOfDay()->is(now()->startOfDay()) ? 'info' : 'primary'),
+
+                TextColumn::make('notifiable_type')
+                    ->formatStateUsing(fn (Model $record): string => $record->created_at->startOfDay() === now()->startOfDay() ? 'امروز' : $record->created_at->diffForHumans())
+                    ->color(fn (Model $record): string => $record->created_at->startOfDay()->is(now()->startOfDay()) ? 'info' : 'primary')
+                    ->badge()->label('زمان ایجاد'),
                 TextColumn::make('type')
                     ->formatStateUsing(fn (Model $record): string => $record->data['body'] ?? '')
                     ->label('متن'),
                 TextColumn::make('read_at')->label('زمان خوانده شدن')->jalaliDate(),
-                TextColumn::make('created_at')->label('زمان ایجاد شدن')->jalaliDate(),
+                //                TextColumn::make('created_at')->label('زمان ایجاد شدن')->jalaliDate(),
 
             ])
             ->filters([

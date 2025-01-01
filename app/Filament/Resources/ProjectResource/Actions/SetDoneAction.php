@@ -19,7 +19,7 @@ class SetDoneAction extends Action
             ->button()
             ->form(
                 fn () => [
-                    TextInput::make('body')->label('متن')->required()->maxLength(100),
+                    TextInput::make('body')->label('متن')->required()->maxLength(250),
                     FileUpload::make('attachment')
                         ->nullable()
                         ->rules([

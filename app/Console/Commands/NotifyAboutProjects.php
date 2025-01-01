@@ -19,7 +19,6 @@ class NotifyAboutProjects extends Command
 
     public function handle(): void
     {
-
         $now = now();
         Project::query()
             ->with('tests')
@@ -52,6 +51,9 @@ class NotifyAboutProjects extends Command
             ->block(60, function () use ($now, $project) {
                 $remaining = $project->calculateTimeBeforeNotify();
                 if (! is_null($project->getFinishesAt())) {
+                    if (Cache::get("project_notify:$project->id", false) === true) {
+                        return;
+                    }
                     if (((int) $now->diffInMinutes($project->getFinishesAt()?->subMinutes($remaining))) === 0) {
                         $users = User::role(['Sale'])->orWhereIn('id', [$project->user_id])->get();
                         $title = "آزمایش‌های محصول «{$project->product->title}» تا «{$remaining}» دقیقه دیگر به پایان می‌رسد.";
@@ -76,6 +78,8 @@ class NotifyAboutProjects extends Command
 
                             ])
                             ->broadcast($users);
+
+                        Cache::set("project_notify:$project->id", true, 120);
                     }
                 }
             });

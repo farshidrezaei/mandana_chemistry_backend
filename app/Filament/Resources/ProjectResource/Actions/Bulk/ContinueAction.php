@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\ProjectResource\Actions\Bulk;
 
 use App\Models\Project;
-
 use Filament\Tables\Actions\BulkAction;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +18,7 @@ class ContinueAction extends BulkAction
             ->color('success')
             ->action(function (Collection $records) {
                 $records->each(fn (Project $project) => $project->continue());
-                redirect("/admin/projects");
+                redirect('/admin/projects');
             })
             ->requiresConfirmation()
             ->deselectRecordsAfterCompletion()
