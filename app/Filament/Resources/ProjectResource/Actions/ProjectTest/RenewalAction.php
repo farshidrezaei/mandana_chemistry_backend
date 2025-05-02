@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\ProjectResource\Actions;
+namespace App\Filament\Resources\ProjectResource\Actions\ProjectTest;
 
 use App\Models\Project;
 use App\Models\Test;
@@ -46,6 +46,7 @@ class RenewalAction extends Action
                     }
                 }
             })
+            ->visible(fn (Test $record) => ! $record->projectTest->isFinished())
             ->requiresConfirmation();
     }
 

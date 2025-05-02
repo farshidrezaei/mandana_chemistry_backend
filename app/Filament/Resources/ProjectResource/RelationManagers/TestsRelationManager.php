@@ -2,7 +2,8 @@
 
 namespace App\Filament\Resources\ProjectResource\RelationManagers;
 
-use App\Filament\Resources\ProjectResource\Actions\RenewalAction;
+use App\Filament\Resources\ProjectResource\Actions\ProjectTest\PassTestAction;
+use App\Filament\Resources\ProjectResource\Actions\ProjectTest\RenewalAction;
 use App\Models\Test;
 use App\Tables\Columns\NewCountDownColumn;
 use Filament\Forms;
@@ -15,13 +16,14 @@ use Filament\Tables\Table;
 class TestsRelationManager extends RelationManager
 {
     protected static string $relationship = 'tests';
+
     protected static ?string $inverseRelationship = 'projects';
 
     protected static ?string $label = 'آزمایش‌ها';
+
     protected static ?string $modelLabel = 'آزمایش';
+
     protected static ?string $pluralModelLabel = 'آزمایش‌ها';
-
-
 
     public function form(Form $form): Form
     {
@@ -33,14 +35,13 @@ class TestsRelationManager extends RelationManager
             ]);
     }
 
-
     public function table(Table $table): Table
     {
         return $table
             ->striped()
             ->recordTitleAttribute('title')
             ->columns([
-                Tables\Columns\TextColumn::make('projectTest.order')->label('مرحله')->formatStateUsing(fn ($state) => (int)$state + 1),
+                Tables\Columns\TextColumn::make('projectTest.order')->label('مرحله')->formatStateUsing(fn ($state) => (int) $state + 1),
                 Tables\Columns\TextColumn::make('title')->label('آزمایش'),
                 Tables\Columns\TextColumn::make('projectTest.started_at')->label('شروع')->jalaliDate(),
                 TextColumn::make('projectTest.test_id')->label('پایان تخمینی')
@@ -55,17 +56,18 @@ class TestsRelationManager extends RelationManager
                                         )
                                 )->format('H:i:s - Y/m/d');
                             }
+
                             return '';
                         }
                     ),
 
-
                 NewCountDownColumn::make('user_id')->label('زمان باقی مانده')
                     ->formatStateUsing(function (Test $record): ?int {
                         $finishedAt = $record->projectTest->getFinishesAt();
-                        if (!$finishedAt) {
+                        if (! $finishedAt) {
                             return null;
                         }
+
                         return $record->projectTest->getRemainingSeconds();
                     }),
 
@@ -80,15 +82,16 @@ class TestsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-//                Tables\Actions\CreateAction::make(),
+                //                Tables\Actions\CreateAction::make(),
             ])
             ->actions([
                 RenewalAction::make('renewal'),
+                PassTestAction::make('pass'),
             ])
             ->bulkActions([
-//                Tables\Actions\BulkActionGroup::make([
-//                    Tables\Actions\DeleteBulkAction::make(),
-//                ]),
+                //                Tables\Actions\BulkActionGroup::make([
+                //                    Tables\Actions\DeleteBulkAction::make(),
+                //                ]),
             ]);
     }
 }

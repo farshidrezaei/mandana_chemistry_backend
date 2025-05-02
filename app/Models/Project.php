@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProjectStatusEnum;
+use App\Enums\ProjectTypeEnum;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -28,6 +29,8 @@ class Project extends Model implements HasMedia
         'started_at' => 'datetime',
         'finished_at' => 'datetime',
         'status' => ProjectStatusEnum::class,
+        'type' => ProjectTypeEnum::class,
+        'weight' => 'float',
     ];
 
     protected $guarded = ['id'];

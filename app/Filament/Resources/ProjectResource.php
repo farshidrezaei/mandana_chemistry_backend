@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\ProjectTypeEnum;
 use App\Filament\Resources\ProjectResource\Actions\Bulk\ContinueAction;
 use App\Filament\Resources\ProjectResource\Actions\Bulk\PauseAction;
-use App\Filament\Resources\ProjectResource\Actions\PauseAllAction;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers\NotesRelationManager;
 use App\Filament\Resources\ProjectResource\RelationManagers\TestsRelationManager;
@@ -22,10 +22,16 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\Split;
+use Filament\Infolists\Components\Tabs;
+use Filament\Infolists\Components\Tabs\Tab;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use Filament\Resources\Pages\EditRecord;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -39,6 +45,7 @@ use JaOcero\ActivityTimeline\Components\ActivityDescription;
 use JaOcero\ActivityTimeline\Components\ActivityIcon;
 use JaOcero\ActivityTimeline\Components\ActivitySection;
 use JaOcero\ActivityTimeline\Components\ActivityTitle;
+use Storage;
 
 class ProjectResource extends Resource implements HasShieldPermissions
 {
@@ -85,117 +92,134 @@ class ProjectResource extends Resource implements HasShieldPermissions
     {
         return $infolist
             ->schema([
-                TextEntry::make('product.title')
-                    ->formatStateUsing(fn (Model $record): string => $record->title ?? $record->product->title)
-                    ->label('نام'),
+                Split::make([
+                    Section::make('پروژه')->schema([
+                        Tabs::make('پروژه')->tabs([
+                            Tab::make('اطلاعات پروژه')->schema([
+                                TextEntry::make('product.title')
+                                    ->weight('bold')
+                                    ->formatStateUsing(fn (Model $record): string => $record->title ?? $record->product->title)
+                                    ->label('نام'),
+                                TextEntry::make('user.name')
+                                    ->label('نام کارمند')->weight('bold'),
+                                TextEntry::make('weight')
+                                    ->label('وزن')->weight('bold'),
+                            ]),
+                            Tab::make('اقدامات')->schema([
+                                ActivitySection::make('activities')
+                                    ->label('اقدامات')
+                                    //->description('These are the activities that have been recorded.')
+                                    ->schema([
+                                        ActivityTitle::make('description')
+                                            ->getStateUsing(fn ($record) => "<b>$record->description</b>(<i>{$record->causer?->name}</i>)")
+                                            ->allowHtml(),
+                                        ActivityDate::make('created_at')
+                                            ->getStateUsing(fn ($record) => verta($record->created_at)->format(' H:i:s Y/m/d '))
+                                            ->date('Y/m/d H:i:s', 'Asia/Tehran'),
+                                        ActivityIcon::make('status')
+                                            ->icon(fn (?string $state): ?string => match ($state) {
+                                                'ideation' => 'heroicon-m-light-bulb',
+                                                'drafting' => 'heroicon-m-bolt',
+                                                'reviewing' => 'heroicon-m-document-magnifying-glass',
+                                                'published' => 'heroicon-m-rocket-launch',
+                                                default => 'heroicon-m-bolt',
+                                            })
+                                            ->color(fn (?string $state): ?string => match ($state) {
+                                                'ideation' => 'purple',
+                                                'drafting' => 'info',
+                                                'reviewing' => 'warning',
+                                                'published' => 'success',
+                                                default => 'info',
+                                            }),
+                                    ])
+                                    ->columnSpanFull()
+                                    ->showItemsCount(20)
+                                    ->showItemsLabel('View Old')
+                                    ->showItemsIcon('heroicon-m-chevron-down')
+                                    ->showItemsColor('gray')
+                                    ->headingVisible(),
+                            ]),
+                            Tab::make('نوت‌ها')->schema([
+                                ActivitySection::make('notes')
+                                    ->label('نوت‌ها')
+                                    ->schema([
+                                        ActivityTitle::make('body')
+                                            ->getStateUsing(fn ($record) => "<b>$record->body</b>(<i>{$record->user?->name}</i>)")
+                                            ->label('متن')
+                                            ->allowHtml(),
+                                        // Be aware that you will need to ensure that the HTML is safe to render, otherwise your application will be vulnerable to XSS attacks.
+                                        ActivityDescription::make('attachment')
+                                            ->allowHtml()
+                                            ->getStateUsing(
+                                                fn (Note $record) => $record->attachment ? "<a href='".Storage::url($record->attachment)."' style='color:rgb(192, 132, 252) ' target='_blank'>پیوست</a>" : ''
+                                            )
+                                            ->placeholder(''),
+                                        ActivityDate::make('created_at')
+                                            ->getStateUsing(fn ($record) => verta($record->created_at)->format(' H:i:s Y/m/d '))
+                                            ->date('Y/m/d H:i:s', 'Asia/Tehran'),
+                                        ActivityIcon::make('status')
+                                            ->icon('heroicon-m-document')
+                                            ->color('info'),
+                                    ])
+                                    ->columnSpanFull()
+                                    ->showItemsCount(20)
+                                    ->showItemsLabel('View Old')
+                                    ->showItemsIcon('heroicon-m-chevron-down')
+                                    ->showItemsColor('gray')
+                                    ->headingVisible(),
+                            ]),
+                        ]),
+                    ])->columnSpanFull(),
+                    Section::make([
+                        TextEntry::make('type')->label('نوع')->formatStateUsing(
+                            fn ($state) => $state->label()
+                        )->columnSpanFull()->badge(),
+                        TextEntry::make('started_at')->label('شروع پروژه')->jalaliDate()->columnSpanFull(),
 
-                TextEntry::make('user.name')
-                    ->label('نام کارمند'),
+                        TextEntry::make('product_id')->label('پایان تخمینی')
+                            ->formatStateUsing(
+                                fn (Model $record): string => verta(
+                                    $record->started_at
+                                        ->addMinutes(
+                                            $record->tests->sum('duration') + $record->tests->sum(
+                                                'projectTest.renewals_duration'
+                                            )
+                                        )
+                                )->format('H:i:s - Y/m/d')
+                            )->columnSpanFull(),
+                        TextEntry::make('finished_at')->label('پایان یافته در')->jalaliDate()->columnSpanFull(),
+                        TextEntry::make('id')->label('تمدید شده')
+                            ->formatStateUsing(
+                                fn (Model $record) => ($record->tests->sum('projectTest.renewals_duration').'  دقیقه ')
+                            ),
+                        IconEntry::make('updated_at')
+                            ->label('وضعیت')
+                            ->icon(
+                                function (Project $record): string {
+                                    if ($record->isPaused()) {
+                                        return 'heroicon-o-pause-circle';
+                                    }
 
-                TextEntry::make('started_at')->label('شروع پروژه')->jalaliDate(),
-
-                TextEntry::make('id')->label('تمدید شده')
-                    ->formatStateUsing(
-                        fn (Model $record) => ($record->tests->sum('projectTest.renewals_duration').'  دقیقه ')
-                    ),
-
-                TextEntry::make('product_id')->label('پایان تخمینی')
-                    ->formatStateUsing(
-                        fn (Model $record): string => verta(
-                            $record->started_at
-                                ->addMinutes(
-                                    $record->tests->sum('duration') + $record->tests->sum(
-                                        'projectTest.renewals_duration'
-                                    )
-                                )
-                        )->format('H:i:s - Y/m/d')
-                    ),
-                TextEntry::make('finished_at')->label('پایان یافته در')->jalaliDate(),
-                IconEntry::make('updated_at')
-                    ->label('وضعیت')
-                    ->icon(
-                        function (Project $record): string {
-                            if ($record->isPaused()) {
-                                return 'heroicon-o-pause-circle';
-                            }
-
-                            return $record->finished_at
-                                 ? ($record->is_mismatched ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle')
-                                 : 'heroicon-o-play-circle';
-                        }
-                    )
-                    ->color(
-                        function (Project $record): string {
-                            if ($record->isPaused()) {
-                                return 'warning';
-                            }
-
-                            return $record->finished_at
-                                  ? ($record->is_mismatched ? 'danger' : 'success')
-                                  : 'info';
-                        }
-                    ),
-                ActivitySection::make('activities')
-                    ->label('اقدامات')
-                    //->description('These are the activities that have been recorded.')
-                    ->schema([
-                        ActivityTitle::make('description')
-                            ->getStateUsing(fn ($record) => "<b>$record->description</b>(<i>{$record->causer?->name}</i>)")
-                            ->allowHtml(),
-                        ActivityDate::make('created_at')
-                            ->getStateUsing(fn ($record) => verta($record->created_at)->format(' H:i:s Y/m/d '))
-                            ->date('Y/m/d H:i:s', 'Asia/Tehran'),
-                        ActivityIcon::make('status')
-                            ->icon(fn (?string $state): ?string => match ($state) {
-                                'ideation' => 'heroicon-m-light-bulb',
-                                'drafting' => 'heroicon-m-bolt',
-                                'reviewing' => 'heroicon-m-document-magnifying-glass',
-                                'published' => 'heroicon-m-rocket-launch',
-                                default => 'heroicon-m-bolt',
-                            })
-                            ->color(fn (?string $state): ?string => match ($state) {
-                                'ideation' => 'purple',
-                                'drafting' => 'info',
-                                'reviewing' => 'warning',
-                                'published' => 'success',
-                                default => 'info',
-                            }),
-                    ])
-                    ->columnSpanFull()
-                    ->showItemsCount(20)
-                    ->showItemsLabel('View Old')
-                    ->showItemsIcon('heroicon-m-chevron-down')
-                    ->showItemsColor('gray')
-                    ->headingVisible(),
-                ActivitySection::make('notes')
-                    ->label('نوت‌ها')
-                    ->schema([
-                        ActivityTitle::make('body')
-                            ->getStateUsing(fn ($record) => "<b>$record->body</b>(<i>{$record->user?->name}</i>)")
-                            ->label('متن')
-                            ->allowHtml(),
-                        // Be aware that you will need to ensure that the HTML is safe to render, otherwise your application will be vulnerable to XSS attacks.
-                        ActivityDescription::make('attachment')
-                            ->allowHtml()
-                            ->getStateUsing(
-                                fn (Note $record) => $record->attachment ? "<a href='".\Storage::url($record->attachment)."' style='color:rgb(192, 132, 252) ' target='_blank'>پیوست</a>" : ''
+                                    return $record->finished_at
+                                        ? ($record->is_mismatched ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle')
+                                        : 'heroicon-o-play-circle';
+                                }
                             )
-                            ->placeholder(''),
-                        ActivityDate::make('created_at')
-                            ->getStateUsing(fn ($record) => verta($record->created_at)->format(' H:i:s Y/m/d '))
-                            ->date('Y/m/d H:i:s', 'Asia/Tehran'),
-                        ActivityIcon::make('status')
-                            ->icon('heroicon-m-document')
-                            ->color('info'),
-                    ])
-                    ->columnSpanFull()
-                    ->showItemsCount(20)
-                    ->showItemsLabel('View Old')
-                    ->showItemsIcon('heroicon-m-chevron-down')
-                    ->showItemsColor('gray')
-                    ->headingVisible(),
-            ])
-            ->columns(3);
+                            ->color(
+                                function (Project $record): string {
+                                    if ($record->isPaused()) {
+                                        return 'warning';
+                                    }
+
+                                    return $record->finished_at
+                                        ? ($record->is_mismatched ? 'danger' : 'success')
+                                        : 'info';
+                                }
+                            ),
+                    ])->grow(false)->columns(2),
+
+                ])->columnSpanFull(),
+            ]);
     }
 
     public static function form(Form $form): Form
@@ -205,6 +229,7 @@ class ProjectResource extends Resource implements HasShieldPermissions
                 Select::make('product_id')
                     ->searchable()
                     ->preload()
+                    ->disabled(fn ($livewire) => $livewire instanceof EditRecord)
                     ->label('محصول')
                     ->relationship('product', 'title')
                     ->getSearchResultsUsing(
@@ -219,17 +244,31 @@ class ProjectResource extends Resource implements HasShieldPermissions
                         ->fill())
                     ->required()->native(false),
 
-                TextInput::make('title')
-                    ->label('نام پروژه'),
+                TextInput::make('title')->label('نام پروژه'),
+                Select::make('type')
+                    ->options([
+                        ProjectTypeEnum::NORMAL->value => ProjectTypeEnum::NORMAL->label(),
+                        ProjectTypeEnum::EXTRACTION->value => ProjectTypeEnum::EXTRACTION->label(),
+                    ])
+                    ->disabled(fn ($livewire) => $livewire instanceof EditRecord)
+                    ->required()
+                    ->label('نوع')->native(false),
                 Select::make('extra_time')
                     ->options([
                         10 => 10,
                         15 => 15,
                         20 => 20,
                     ])
+                    ->disabled(fn ($livewire) => $livewire instanceof EditRecord)
                     ->required()
                     ->default(10)
                     ->label('وقت اضافه')->native(false),
+                TextInput::make('weight')->hint('کیلوگرم')
+                    ->required()
+                    ->numeric()
+                    ->minValue(1)
+                    ->disabled(fn ($livewire) => $livewire instanceof EditRecord)
+                    ->label('وزن'),
 
                 Grid::make(1)
                     ->schema(function (Get $get): array {
@@ -243,7 +282,8 @@ class ProjectResource extends Resource implements HasShieldPermissions
                                     "در کل $count آزمایش "." در {$duration} دقیقه "
                                 ),
                         ] : [];
-                    })
+                    })->disabled(fn ($livewire) => $livewire instanceof EditRecord)
+
                     ->key('dynamicTypeFields'),
             ])->columns(2);
     }
@@ -252,14 +292,25 @@ class ProjectResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->striped()
+            ->recordClasses(function (Model $record) {
+                if ($record->created_at->isToday()) {
+                    return 'project-success';
+                } elseif ($record->isStarted() && ! $record->isFinished() && $record->getRemainingMinutes() <= 0) {
+                    return 'project-danger';
+                } else {
+                    return '';
+                }
+            })
             ->columns([
-
                 TextColumn::make('title')->searchable()
                     ->formatStateUsing(fn (Model $record): string => $record->title ?? $record->product->title)
                     ->label('نام پروژه'),
 
                 TextColumn::make('user.name')->searchable()
                     ->label('نام کارمند'),
+
+                TextColumn::make('type')
+                    ->label('نوع')->formatStateUsing(fn ($record) => $record->type->label()),
 
                 TextColumn::make('started_at')->label('شروع پروژه')->jalaliDate(),
 
@@ -360,7 +411,7 @@ class ProjectResource extends Resource implements HasShieldPermissions
             ])
             ->actions([
                 //                Tables\Actions\ViewAction::make(),
-                //                Tables\Actions\EditAction::make(),
+                EditAction::make(),
 
             ])
             ->bulkActions([
@@ -368,7 +419,9 @@ class ProjectResource extends Resource implements HasShieldPermissions
                 ContinueAction::make('bulk-continue'),
                 PauseAction::make('bulk-pause'),
                 //                ]),
-            ]);
+            ])
+            ->recordUrl(fn ($record) => static::getUrl('view', ['record' => $record]));
+
         //  ->poll(60);
     }
 

@@ -28,7 +28,8 @@ return [
         'filters' => [
             'tabs' => [
                 'all' => 'همه',
-                'testing' => 'درحال آزمایش',
+                'normal' => 'عادی',
+                'extraction' => 'تخلیه',
                 'done' => 'منطبق',
                 'failed' => 'نامنطبق',
                 'paused' => 'متوقف شده',

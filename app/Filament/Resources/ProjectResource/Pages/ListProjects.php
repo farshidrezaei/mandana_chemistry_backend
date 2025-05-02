@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ProjectResource\Pages;
 
 use App\Enums\ProjectStatusEnum;
+use App\Enums\ProjectTypeEnum;
 use App\Filament\Resources\ProjectResource;
 use App\Filament\Resources\ProjectResource\Actions\PauseAllAction;
 use Filament\Actions;
@@ -28,7 +29,7 @@ class ListProjects extends ListRecords
         $user = Auth::user();
 
         return [
-            trans('resources.project.filters.tabs.testing') => Tab::make()
+            trans('resources.project.filters.tabs.normal') => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query
                     ->withoutTrashed()
                     ->where(
@@ -36,6 +37,17 @@ class ListProjects extends ListRecords
                             ->where('status', '!=', ProjectStatusEnum::PAUSED)
                             ->orWhereNull('status')
                     )
+                    ->where('type', ProjectTypeEnum::NORMAL)
+                    ->whereNull('finished_at')),
+            trans('resources.project.filters.tabs.extraction') => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query
+                    ->withoutTrashed()
+                    ->where(
+                        fn (Builder $query) => $query
+                            ->where('status', '!=', ProjectStatusEnum::PAUSED)
+                            ->orWhereNull('status')
+                    )
+                    ->where('type', ProjectTypeEnum::EXTRACTION)
                     ->whereNull('finished_at')),
 
             trans('resources.project.filters.tabs.done') => Tab::make()

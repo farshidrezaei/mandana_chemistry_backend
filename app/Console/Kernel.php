@@ -15,11 +15,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command(ProjectDetermineStatusCommand::class)
-            ->everySecond()
+            ->everyTwoSeconds()
             ->withoutOverlapping()
             ->runInBackground();
         $schedule->command(NotifyAboutProjects::class)
-            ->everySecond()
+            ->everyTwoSeconds()
             ->withoutOverlapping()
             ->runInBackground();
 

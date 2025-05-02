@@ -25,7 +25,7 @@ class CreateProject extends CreateRecord
         if (is_null($project->title)) {
             $project->update(['title' => $project->product->title]);
         }
-Project::whereNull('title')->get();
+        Project::whereNull('title')->get();
         $tests = $project->product->tests;
 
         $tests->each(function (Test $test, int $index) use ($project) {

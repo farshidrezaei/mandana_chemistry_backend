@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property ProjectTest $projectTest
  */
 class Test extends Model
 {
-    use  HasFactory;
+    use HasFactory;
+
     protected $guarded = ['id'];
 
     public function testProducts(): HasMany
@@ -27,8 +28,6 @@ class Test extends Model
 
     public function projects(): BelongsToMany
     {
-        return $this->belongsToMany(Project::class)->using(ProjectTest::class)->as('projectTest')->withTrashed();
+        return $this->belongsToMany(Project::class)->withTrashed()->using(ProjectTest::class)->as('projectTest');
     }
-
-
 }

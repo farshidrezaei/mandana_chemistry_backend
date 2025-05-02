@@ -138,6 +138,12 @@ left: 0 !important;
 right: auto !important;
 }
 
+.project-success{
+border-right: 4px solid green  !important;
+}
+.project-danger{
+border-right: 4px solid red !important;
+}
 </style>',
         ];
 
