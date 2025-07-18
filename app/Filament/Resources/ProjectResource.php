@@ -108,7 +108,6 @@ class ProjectResource extends Resource implements HasShieldPermissions
                             Tab::make('اقدامات')->schema([
                                 ActivitySection::make('activities')
                                     ->label('اقدامات')
-                                    //->description('These are the activities that have been recorded.')
                                     ->schema([
                                         ActivityTitle::make('description')
                                             ->getStateUsing(fn ($record) => "<b>$record->description</b>(<i>{$record->causer?->name}</i>)")
@@ -181,9 +180,8 @@ class ProjectResource extends Resource implements HasShieldPermissions
                                 fn (Model $record): string => verta(
                                     $record->started_at
                                         ->addMinutes(
-                                            $record->tests->sum('duration') + $record->tests->sum(
-                                                'projectTest.renewals_duration'
-                                            )
+                                            $record->tests->whereNull('projectTest.started_at')->whereNull('projectTest.finished_at')->sum('duration')
+                                            + $record->tests->whereNull('projectTest.started_at')->whereNull('projectTest.finished_at')->sum('projectTest.renewals_duration')
                                         )
                                 )->format('H:i:s - Y/m/d')
                             )->columnSpanFull(),
@@ -324,9 +322,8 @@ class ProjectResource extends Resource implements HasShieldPermissions
                         fn (Model $record): string => verta(
                             $record->started_at
                                 ->addMinutes(
-                                    $record->tests->sum('duration') + $record->tests->sum(
-                                        'projectTest.renewals_duration'
-                                    )
+                                    $record->tests->whereNull('projectTest.started_at')->whereNull('projectTest.finished_at')->sum('duration')
+                                    + $record->tests->whereNull('projectTest.started_at')->whereNull('projectTest.finished_at')->sum('projectTest.renewals_duration')
                                 )
                         )->format('H:i:s Y-m-d')
                     ),
@@ -340,8 +337,8 @@ class ProjectResource extends Resource implements HasShieldPermissions
                         if ($record->isFinished() || $record->isExpired()) {
                             return null;
                         }
-
-                        return (int) now()->diffInSeconds($record->getFinishesAt());
+                        $remaining = (int) $record->getRemainingMinutes();
+                        return $remaining > 0 ? $remaining * 60 : null;
                     }),
                 TextColumn::make('finished_at')->label('زمان پایان')->jalaliDate(),
                 IconColumn::make('updated_at')

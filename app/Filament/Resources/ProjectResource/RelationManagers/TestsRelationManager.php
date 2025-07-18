@@ -86,7 +86,9 @@ class TestsRelationManager extends RelationManager
             ])
             ->actions([
                 RenewalAction::make('renewal'),
-                PassTestAction::make('pass'),
+                PassTestAction::make('pass')->after(function () {
+                    $this->js('window.location.reload();');
+                }),
             ])
             ->bulkActions([
                 //                Tables\Actions\BulkActionGroup::make([

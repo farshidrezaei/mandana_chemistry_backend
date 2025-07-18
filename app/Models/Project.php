@@ -93,7 +93,7 @@ class Project extends Model implements HasMedia
 
         $tests = $this->tests
             ->whereNull('projectTest.finished_at')
-            ->sortBy('id');
+            ->sortBy('projectTest.order');
         $first = $tests->shift();
         if ($first === null || ! $first->projectTest->started_at) {
             return null;
@@ -108,9 +108,9 @@ class Project extends Model implements HasMedia
 
     public function getRemainingMinutes(): ?int
     {
-        $finishedAt = $this->getFinishesAt();
+        $finishesAt = $this->getFinishesAt();
 
-        return (int) $finishedAt?->diffInMinutes(now());
+        return (int) now()->diffInMinutes($finishesAt);
     }
 
     public function isFinished(): bool

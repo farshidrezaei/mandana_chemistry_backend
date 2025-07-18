@@ -35,15 +35,15 @@ class PassTestAction extends Action
 
                 $tests = $record->projectTest->project->tests()->get();
 
-                if ($tests->whereNotNull('projectTest.started_at')->whereNull('projectTest.started_at')->isEmpty()) {
+                if ($tests->whereNotNull('projectTest.started_at')->whereNull('projectTest.finished_at')->isEmpty()) {
                     $next = $tests->whereNull('projectTest.started_at')->whereNull('projectTest.started_at')->sortBy('projectTest.order')->first();
 
                     $next->projectTest->update([
                         'started_at' => now(),
                     ]);
                 }
-                $this->notify($record, $data);
 
+                $this->notify($record, $data);
             })
             ->visible(fn (Test $record) => ! $record->projectTest->isFinished())
             ->requiresConfirmation();
