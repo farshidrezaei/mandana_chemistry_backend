@@ -45,7 +45,7 @@ COPY ./supervisor.conf /etc/supervisor/conf.d/supervisor.conf
 COPY --from=composer:2.5.8 /usr/bin/composer /usr/bin/composer
 
 # Create custom php.ini setting to increase memory limit
-RUN echo "memory_limit=5G" > /usr/local/etc/php/conf.d/memory-limit.ini
+RUN echo "memory_limit=10G" > /usr/local/etc/php/conf.d/memory-limit.ini
 
 # Install PHP dependencies and set up Laravel
 RUN composer install
