@@ -62,7 +62,8 @@ class PassTestAction extends Action
             ->useLog('projects')
             ->performedOn($test->projectTest->project)
             ->causedBy(Auth::user())
-            ->log(' آزمایش '.
+            ->log(
+                ' آزمایش '.
                 $test->projectTest->test->title.
                 " پروژه  $title "
                 .' توسط '
@@ -73,7 +74,8 @@ class PassTestAction extends Action
             );
 
         Notification::make()
-            ->title(' آزمایش '.
+            ->title(
+                ' آزمایش '.
                 $test->projectTest->test->title.
                 " پروژه  $title "
                 .' توسط '
@@ -89,7 +91,8 @@ class PassTestAction extends Action
             ->sendToDatabase($users);
 
         Notification::make()
-            ->title(' آزمایش '.
+            ->title(
+                ' آزمایش '.
                 $test->projectTest->test->title.
                 " پروژه  $title "
                 .' توسط '

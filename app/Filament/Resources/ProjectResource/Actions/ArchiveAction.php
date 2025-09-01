@@ -64,7 +64,6 @@ class ArchiveAction extends Action
 
         Notification::make()
             ->title(
-
                 ' پروژه '
                 ." '{$title}'"
                 .'توسط '

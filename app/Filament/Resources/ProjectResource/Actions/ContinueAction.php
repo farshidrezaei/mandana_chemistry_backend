@@ -4,7 +4,6 @@ namespace App\Filament\Resources\ProjectResource\Actions;
 
 use App\Models\Project;
 use Filament\Actions\Action;
-
 use Illuminate\Support\Facades\Auth;
 
 class ContinueAction extends Action

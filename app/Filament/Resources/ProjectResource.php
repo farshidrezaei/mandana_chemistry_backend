@@ -30,6 +30,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Resources\Resource;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
@@ -45,6 +46,7 @@ use JaOcero\ActivityTimeline\Components\ActivityDescription;
 use JaOcero\ActivityTimeline\Components\ActivityIcon;
 use JaOcero\ActivityTimeline\Components\ActivitySection;
 use JaOcero\ActivityTimeline\Components\ActivityTitle;
+use Livewire\Livewire;
 use Storage;
 
 class ProjectResource extends Resource implements HasShieldPermissions
@@ -331,15 +333,29 @@ class ProjectResource extends Resource implements HasShieldPermissions
                 TextColumn::make('notes_count')->label('نوت‌ها')->counts('notes')
                     ->badge(),
 
-                NewCountDownColumn::make('user_id')
+                TextColumn::make('user_id')
                     ->label('زمان باقی مانده')
-                    ->formatStateUsing(function (Project $record): ?int {
+                    ->formatStateUsing(function (Project $record): ?string {
                         if ($record->isFinished() || $record->isExpired()) {
-                            return null;
+                            return '-';
                         }
-                        $remaining = (int) $record->getRemainingMinutes();
-                        return $remaining > 0 ? $remaining * 60 : null;
+
+                        $remaining = $record->getRemainingSeconds();
+
+                        return $remaining > 0
+                            ? gmdate('H:i:s', $remaining)
+                            : '-';
                     }),
+                //                NewCountDownColumn::make('user_id')
+                //                    ->label('زمان باقی مانده')
+                //                    ->formatStateUsing(function (Project $record): ?int {
+                //                        if ($record->isFinished() || $record->isExpired()) {
+                //                            return null;
+                //                        }
+                //                        $remaining = (int) $record->getRemainingMinutes();
+                //
+                //                        return $remaining > 0 ? $remaining * 60 : null;
+                //                    }),
                 TextColumn::make('finished_at')->label('زمان پایان')->jalaliDate(),
                 IconColumn::make('updated_at')
                     ->label('وضعیت')
@@ -417,9 +433,15 @@ class ProjectResource extends Resource implements HasShieldPermissions
                 PauseAction::make('bulk-pause'),
                 //                ]),
             ])
-            ->recordUrl(fn ($record) => static::getUrl('view', ['record' => $record]));
-
-        //  ->poll(60);
+            ->headerActions([
+                Action::make('refresh')
+                    ->label('بروزرسانی')
+                    ->icon('heroicon-o-arrow-path')
+                    ->action(fn (Table $table) => null) // trigger Livewire re-render
+                    ->color('gray'),
+            ])
+            ->recordUrl(fn ($record) => static::getUrl('view', ['record' => $record]))
+            ->poll('30s');
     }
 
     public static function getRelations(): array

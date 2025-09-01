@@ -94,23 +94,27 @@ class Project extends Model implements HasMedia
         $tests = $this->tests
             ->whereNull('projectTest.finished_at')
             ->sortBy('projectTest.order');
-        $first = $tests->shift();
-        if ($first === null || ! $first->projectTest->started_at) {
+        $inProgressTest = $tests->shift();
+        if ($inProgressTest === null || ! $inProgressTest->projectTest->started_at) {
             return null;
         }
 
         return now()
-            ->addSeconds($first->projectTest->getRemainingSeconds())
-            ->addMinutes(
-                $tests->sum('duration') + ($tests->sum('projectTest.renewals_duration'))
-            );
+            ->addSeconds($inProgressTest->projectTest->getRemainingSeconds());
     }
 
-    public function getRemainingMinutes(): ?int
+    public function getRemainingMinutes(): ?float
     {
         $finishesAt = $this->getFinishesAt();
 
-        return (int) now()->diffInMinutes($finishesAt);
+        return now()->diffInMinutes($finishesAt);
+    }
+
+    public function getRemainingSeconds(): ?float
+    {
+        $finishesAt = $this->getFinishesAt();
+
+        return now()->diffInSeconds($finishesAt);
     }
 
     public function isFinished(): bool

@@ -81,7 +81,8 @@ class NotificationResource extends Resource
                     ->icon(
                         fn (DatabaseNotification $record): string => $record->read_at
                             ? 'heroicon-o-check-circle'
-                            : '')
+                            : ''
+                    )
                     ->color(fn (Model $record): string => $record->created_at->startOfDay()->is(now()->startOfDay()) ? 'info' : 'primary'),
 
                 TextColumn::make('notifiable_type')

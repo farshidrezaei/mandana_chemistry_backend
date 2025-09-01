@@ -82,7 +82,8 @@ class RenewalAction extends Action
         $title = $project->title ?? $project->product->title;
 
         Notification::make()
-            ->title(" پروژه  $title "
+            ->title(
+                " پروژه  $title "
                 .' توسط '
                 .Auth::user()->name
                 .' تمدید شد '
@@ -97,7 +98,8 @@ class RenewalAction extends Action
             ->sendToDatabase($users);
 
         Notification::make()
-            ->title(" پروژه  $title "
+            ->title(
+                " پروژه  $title "
                 .' توسط '
                 .Auth::user()->name
                 .' تمدید شد '

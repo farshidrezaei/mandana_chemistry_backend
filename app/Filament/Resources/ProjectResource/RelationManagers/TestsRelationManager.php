@@ -10,6 +10,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -61,15 +62,28 @@ class TestsRelationManager extends RelationManager
                         }
                     ),
 
-                NewCountDownColumn::make('user_id')->label('زمان باقی مانده')
-                    ->formatStateUsing(function (Test $record): ?int {
+                TextColumn::make('user_id')
+                    ->label('زمان باقی مانده')
+                    ->formatStateUsing(function (Test $record): ?string {
                         $finishedAt = $record->projectTest->getFinishesAt();
                         if (! $finishedAt) {
-                            return null;
+                            return '-';
                         }
+                        $remaining = $record->projectTest->getRemainingSeconds();
 
-                        return $record->projectTest->getRemainingSeconds();
+                        return $remaining > 0
+                            ? gmdate('H:i:s', $remaining)
+                            : '-';
                     }),
+                //                NewCountDownColumn::make('user_id')->label('زمان باقی مانده')
+                //                    ->formatStateUsing(function (Test $record): ?int {
+                //                        $finishedAt = $record->projectTest->getFinishesAt();
+                //                        if (! $finishedAt) {
+                //                            return null;
+                //                        }
+                //
+                //                        return $record->projectTest->getRemainingSeconds();
+                //                    }),
 
                 Tables\Columns\TextColumn::make('projectTest.renewals_count')
                     ->formatStateUsing(
@@ -94,6 +108,13 @@ class TestsRelationManager extends RelationManager
                 //                Tables\Actions\BulkActionGroup::make([
                 //                    Tables\Actions\DeleteBulkAction::make(),
                 //                ]),
+            ])->poll('30s')
+            ->headerActions([
+                Action::make('refresh')
+                    ->label('بروزرسانی')
+                    ->icon('heroicon-o-arrow-path')
+                    ->action(fn () => $this->resetTable()) // trigger Livewire re-render
+                    ->color('gray'),
             ]);
     }
 }
