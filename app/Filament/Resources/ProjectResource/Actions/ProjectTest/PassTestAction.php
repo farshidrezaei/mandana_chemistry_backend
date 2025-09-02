@@ -45,7 +45,7 @@ class PassTestAction extends Action
 
                 $this->notify($record, $data);
             })
-            ->visible(fn (Test $record) => ! $record->projectTest->isFinished())
+            ->visible(fn (Test $record) => ! $record->projectTest->isFinished() && Auth::user()->can('pass_project_test_project'))
             ->requiresConfirmation();
     }
 

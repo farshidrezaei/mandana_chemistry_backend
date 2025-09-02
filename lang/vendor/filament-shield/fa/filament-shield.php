@@ -81,6 +81,7 @@ return [
         'force_set_done_project_test' => 'ثبت  منطبق آزمایش قبل از موعد',
         'force_set_failed_project_test' => 'ثبت  نامنطبق آزمایش قبل از موعد',
         'renewal_project_test' => 'تمدید مدت دار',
+        'pass_project_test' => 'پاس کردن',
         'add_project_note' => 'افزودن نوت به پروژه',
         'pause_project' => 'توقف پروژه',
         'pause_all_project' => 'توقف همه پروژه',

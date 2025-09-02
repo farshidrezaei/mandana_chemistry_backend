@@ -84,6 +84,7 @@ class ProjectResource extends Resource implements HasShieldPermissions
             'force_set_done_project_test',
             'force_set_failed_project_test',
             'renewal_project_test',
+            'pass_project_test',
             'add_project_note',
             'pause_project',
             'pause_all_project',
