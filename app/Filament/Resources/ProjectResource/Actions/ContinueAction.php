@@ -23,7 +23,7 @@ class ContinueAction extends Action
                 fn (Project $record): bool => $record->isPaused()
                     && Auth::user()->can('continue_project_project')
                     && $record->isStarted()
-                    && !$record->isFinished()
+                    && ! $record->isFinished()
             );
     }
 }

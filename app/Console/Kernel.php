@@ -23,8 +23,8 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->runInBackground();
 
-        $schedule->command('backup:clean')->daily()->at('03:00');
-        $schedule->command('backup:run')->daily()->at('03:30');
+        $schedule->command('backup:clean --disable-notifications')->daily()->at('03:00');
+        $schedule->command('backup:run --disable-notifications')->daily()->at('03:30');
 
     }
 

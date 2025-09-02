@@ -43,7 +43,7 @@ class SetFailedAction extends Action
             })
             ->requiresConfirmation()
             ->hidden(
-                fn (Project $record): bool => ! Auth::user()->can('set_failed_project_test_project')
+                fn (Project $record): bool => Auth::user()->cannot('set_failed_project_test_project')
                     || $record->isPaused()
                     || ! $record->isStarted()
                     || $record->isFinished()

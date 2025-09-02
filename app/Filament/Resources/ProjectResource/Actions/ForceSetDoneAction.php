@@ -42,7 +42,7 @@ class ForceSetDoneAction extends Action
             })
             ->requiresConfirmation()
             ->hidden(
-                fn (Project $record): bool => ! Auth::user()->can('force_set_done_project_test_project')
+                fn (Project $record): bool => Auth::user()->cannot('force_set_done_project_test_project')
                     || ! $record->isStarted()
                     || $record->isFinished()
             );

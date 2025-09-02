@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ProjectResource\RelationManagers;
 use App\Filament\Resources\ProjectResource\Actions\ProjectTest\PassTestAction;
 use App\Filament\Resources\ProjectResource\Actions\ProjectTest\RenewalAction;
 use App\Models\Test;
+use App\Services\Utils\Utils;
 use App\Tables\Columns\NewCountDownColumn;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -72,7 +73,7 @@ class TestsRelationManager extends RelationManager
                         $remaining = $record->projectTest->getRemainingSeconds();
 
                         return $remaining > 0
-                            ? gmdate('H:i:s', $remaining)
+                            ? Utils::formatDuration($remaining)
                             : '-';
                     }),
                 //                NewCountDownColumn::make('user_id')->label('زمان باقی مانده')

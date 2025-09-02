@@ -100,7 +100,10 @@ class Project extends Model implements HasMedia
         }
 
         return now()
-            ->addSeconds($inProgressTest->projectTest->getRemainingSeconds());
+            ->addSeconds($inProgressTest->projectTest->getRemainingSeconds())
+            ->addMinutes(
+                $tests->sum('duration') + ($tests->sum('projectTest.renewals_duration'))
+            );
     }
 
     public function getRemainingMinutes(): ?float

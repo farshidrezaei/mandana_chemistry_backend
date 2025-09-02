@@ -12,6 +12,7 @@ use App\Models\Note;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\User;
+use App\Services\Utils\Utils;
 use App\Tables\Columns\NewCountDownColumn;
 use Ariaieboy\FilamentJalaliDatetimepicker\Forms\Components\JalaliDatePicker;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
@@ -343,7 +344,7 @@ class ProjectResource extends Resource implements HasShieldPermissions
                         $remaining = $record->getRemainingSeconds();
 
                         return $remaining > 0
-                            ? gmdate('H:i:s', $remaining)
+                            ? Utils::formatDuration($remaining)
                             : '-';
                     }),
                 //                NewCountDownColumn::make('user_id')

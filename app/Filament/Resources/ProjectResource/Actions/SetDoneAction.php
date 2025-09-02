@@ -42,7 +42,7 @@ class SetDoneAction extends Action
             })
             ->requiresConfirmation()
             ->hidden(
-                fn (Project $record): bool => ! Auth::user()->can('set_done_project_test_project')
+                fn (Project $record): bool => Auth::user()->cannot('set_done_project_test_project')
                     || $record->isPaused()
                     || ! $record->isStarted()
                     || $record->isFinished()

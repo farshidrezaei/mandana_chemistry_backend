@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Project;
+use App\Services\Utils\Utils;
 use App\Tables\Columns\NewCountDownColumn;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Tables\Actions\ViewAction;
@@ -65,7 +66,7 @@ class AuthenticatedUserProjects extends BaseWidget
                         $remaining = $record->getRemainingSeconds();
 
                         return $remaining > 0
-                            ? gmdate('H:i:s', $remaining)
+                            ? Utils::formatDuration($remaining)
                             : '-';
                     }),
                 TextColumn::make('finished_at')->label('زمان پایان')->jalaliDate(),
