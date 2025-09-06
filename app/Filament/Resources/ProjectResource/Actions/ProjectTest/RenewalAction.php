@@ -63,7 +63,7 @@ class RenewalAction extends Action
             ->causedBy(Auth::user())
             ->log(" آزمایش  $test->title "
                 .' توسط '
-                .$test->projectTest->project->user->name
+                .Auth::user()->name
       .' تمدید شد '
             .($force ? 'و باعث افزایش زمان پروژه شد.' : '.').
             'دلیل: '.$data['body']);
