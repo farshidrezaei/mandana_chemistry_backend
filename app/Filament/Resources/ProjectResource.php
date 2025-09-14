@@ -6,7 +6,6 @@ use App\Enums\ProjectTypeEnum;
 use App\Filament\Resources\ProjectResource\Actions\Bulk\ContinueAction;
 use App\Filament\Resources\ProjectResource\Actions\Bulk\PauseAction;
 use App\Filament\Resources\ProjectResource\Pages;
-use App\Filament\Resources\ProjectResource\RelationManagers\NotesRelationManager;
 use App\Filament\Resources\ProjectResource\RelationManagers\TestsRelationManager;
 use App\Models\Note;
 use App\Models\Product;
@@ -443,6 +442,7 @@ class ProjectResource extends Resource implements HasShieldPermissions
                     ->color('gray'),
             ])
             ->recordUrl(fn ($record) => static::getUrl('view', ['record' => $record]))
+            ->paginationPageOptions([5, 10, 15, 20, 30])
             ->poll('30s');
     }
 
@@ -450,7 +450,6 @@ class ProjectResource extends Resource implements HasShieldPermissions
     {
         return [
             TestsRelationManager::class,
-            //            NotesRelationManager::class
         ];
     }
 

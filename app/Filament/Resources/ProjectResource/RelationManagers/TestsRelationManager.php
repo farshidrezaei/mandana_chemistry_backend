@@ -116,6 +116,7 @@ class TestsRelationManager extends RelationManager
                     ->icon('heroicon-o-arrow-path')
                     ->action(fn () => $this->resetTable()) // trigger Livewire re-render
                     ->color('gray'),
-            ]);
+            ])
+            ->paginationPageOptions([5, 10, 15, 20, 30]);
     }
 }
